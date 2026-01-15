@@ -1,0 +1,194 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: salesos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: salesos
+      POSTGRES_PASSWORD: salesos
+      POSTGRES_DB: salesos
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U salesos']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: salesos-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redpanda - Kafka-compatible event streaming
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.4
+    container_name: salesos-redpanda
+    restart: unless-stopped
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
+      - --advertise-pandaproxy-addr internal://redpanda:8082,external://localhost:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
+      - --rpc-addr redpanda:33145
+      - --advertise-rpc-addr redpanda:33145
+      - --mode dev-container
+      - --smp 1
+      - --memory 512M
+      - --default-log-level=warn
+    ports:
+      - '18081:18081' # Schema Registry
+      - '18082:18082' # Pandaproxy (REST)
+      - '19092:19092' # Kafka API
+      - '19644:9644'  # Admin API
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+    healthcheck:
+      test: ['CMD-SHELL', "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Redpanda Console - Web UI for Kafka
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:v2.7.0
+    container_name: salesos-redpanda-console
+    restart: unless-stopped
+    entrypoint: /bin/sh
+    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml && /app/console'
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:9092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+    ports:
+      - '8080:8080'
+    depends_on:
+      redpanda:
+        condition: service_healthy
+
+  # Topic initialization - creates Kafka topics on startup
+  redpanda-init:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.4
+    container_name: salesos-redpanda-init
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    entrypoint: /bin/bash
+    command: |
+      -c "
+      echo 'Creating SalesOS Kafka topics...'
+      
+      # Account events
+      rpk topic create account.created --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create account.updated --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create account.deleted --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      
+      # Contact events
+      rpk topic create contact.created --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create contact.updated --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create contact.deleted --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      
+      # Opportunity events
+      rpk topic create opportunity.created --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create opportunity.updated --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create opportunity.stage_changed --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create opportunity.won --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create opportunity.lost --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      
+      # Email events
+      rpk topic create email.drafted --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create email.queued --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create email.sent --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create email.delivered --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create email.opened --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create email.clicked --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create email.replied --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create email.bounced --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create email.failed --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      
+      # Meeting events
+      rpk topic create meeting.proposed --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create meeting.confirmed --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create meeting.cancelled --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create meeting.completed --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create meeting.no_show --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      
+      # Sequence events
+      rpk topic create sequence.created --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create sequence.updated --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create sequence.activated --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create sequence.paused --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create sequence.contact_enrolled --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create sequence.contact_completed --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create sequence.step_executed --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      
+      # Engagement events
+      rpk topic create engagement.score_updated --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      rpk topic create engagement.intent_signal_detected --brokers redpanda:9092 --partitions 3 --replicas 1 || true
+      
+      # Dead letter queue for failed events
+      rpk topic create salesos.dlq --brokers redpanda:9092 --partitions 1 --replicas 1 || true
+      
+      echo 'Topics created successfully!'
+      rpk topic list --brokers redpanda:9092
+      "
+    restart: 'no'
+
+  # OpenTelemetry Collector (optional for local dev)
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    container_name: salesos-otel
+    restart: unless-stopped
+    command: ['--config=/etc/otel-collector-config.yaml']
+    volumes:
+      - ./docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - '4317:4317' # OTLP gRPC
+      - '4318:4318' # OTLP HTTP
+      - '8888:8888' # Prometheus metrics
+    profiles:
+      - observability
+
+  # Jaeger for trace visualization (optional)
+  jaeger:
+    image: jaegertracing/all-in-one:1.62
+    container_name: salesos-jaeger
+    restart: unless-stopped
+    environment:
+      COLLECTOR_OTLP_ENABLED: 'true'
+    ports:
+      - '16686:16686' # Jaeger UI
+      - '14268:14268' # Accept thrift
+    profiles:
+      - observability
+
+volumes:
+  postgres_data:
+  redis_data:
+  redpanda_data:
+

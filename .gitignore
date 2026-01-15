@@ -1,0 +1,155 @@
+# ====================================
+# Bevyly / SalesOS Project .gitignore
+# ====================================
+
+# ==============
+# Dependencies
+# ==============
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+yarn.lock
+package-lock.json
+
+# ==============
+# Environment Variables (CRITICAL - Never commit these!)
+# ==============
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env*.local
+*.env
+
+# ==============
+# Build Outputs
+# ==============
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# ==============
+# IDE & Editors
+# ==============
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# ==============
+# OS Files
+# ==============
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ==============
+# Logs & Debug
+# ==============
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+debug.log
+
+# ==============
+# Testing
+# ==============
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+.playwright/
+
+# ==============
+# Temporary Files
+# ==============
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ==============
+# Database
+# ==============
+*.sqlite
+*.sqlite3
+*.db
+pgdata/
+
+# ==============
+# Docker (local volumes)
+# ==============
+docker-volumes/
+
+# ==============
+# Drizzle (keep schema, ignore generated)
+# ==============
+# Keep: drizzle/*.sql (migrations)
+# Keep: drizzle/meta/*.json
+
+# ==============
+# Secrets & Certificates
+# ==============
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+.secrets/
+
+# ==============
+# Expo / React Native (if applicable)
+# ==============
+.expo/
+.expo-shared/
+*.jks
+*.keystore
+
+# ==============
+# Miscellaneous
+# ==============
+.cache/
+.parcel-cache/
+.turbo/
+.vercel/
+.netlify/
+
+# Local Supabase
+.supabase/
+
+# Storybook
+storybook-static/
+
+# Sentry
+.sentryclirc

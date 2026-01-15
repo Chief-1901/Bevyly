@@ -1,0 +1,166 @@
+/* 
+ * Semantic Design Tokens
+ * Light mode values on :root, dark overrides on .dark
+ */
+
+:root {
+  /* Layout tokens */
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 72px;
+
+  /* Radius tokens */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-input: 12px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-kpi: 18px;
+
+  /* ─────────────────────────────────────────────────────────────
+     LIGHT MODE COLORS
+     ───────────────────────────────────────────────────────────── */
+
+  /* Semantic surface colors */
+  --color-bg: #f2f1ef;
+  --color-surface: #ffffff;
+  --color-border: rgba(55, 54, 53, 0.04);
+  --color-muted-beige: #eadecf;
+
+  /* Text colors */
+  --color-text-primary: #373635;
+  --color-text-muted: #777b83;
+
+  /* Primary palette (neutral/charcoal) */
+  --color-primary-50: #f7f7f7;
+  --color-primary-200: #e6e6e6;
+  --color-primary-500: #595959;
+  --color-primary-700: #373635;
+  --color-primary-900: #111111;
+
+  /* Secondary palette (muted teal) */
+  --color-secondary-50: #f4f9f7;
+  --color-secondary-200: #ddecdf;
+  --color-secondary-500: #8fbfb3;
+  --color-secondary-700: #6ba89a;
+  --color-secondary-900: #2f6f61;
+
+  /* Gray palette */
+  --color-gray-100: #f2f1ef;
+  --color-gray-300: #e6e6e6;
+  --color-gray-400: #a4a4a5;
+  --color-gray-500: #777b83;
+  --color-gray-600: #595959;
+  --color-gray-700: #373635;
+  --color-gray-800: #2e2e2d;
+  --color-gray-900: #111111;
+
+  /* Accent colors */
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #0ea5e9;
+
+  /* Derived alpha tokens for components */
+  --surface-primary-a06: rgba(89, 89, 89, 0.06);
+  --success-a12: rgba(22, 163, 74, 0.12);
+  --success-a10: rgba(22, 163, 74, 0.10);
+  --warning-a12: rgba(245, 158, 11, 0.12);
+  --warning-a10: rgba(245, 158, 11, 0.10);
+  --danger-a10: rgba(239, 68, 68, 0.10);
+  --focus-ring: rgba(55, 54, 53, 0.12);
+  --table-header-bg: rgba(55, 54, 53, 0.02);
+  --gridline: rgba(55, 54, 53, 0.06);
+
+  /* Elevation / shadows */
+  --elevation-card: 0 6px 18px rgba(55, 54, 53, 0.06);
+  --elevation-floating: 0 10px 30px rgba(55, 54, 53, 0.08);
+
+  /* Focus ring color */
+  --color-focus: #595959;
+
+  /* Heatmap intensity tokens */
+  --heatmap-0: #f2f1ef;
+  --heatmap-1: #ddecdf;
+  --heatmap-2: #b5d7ce;
+  --heatmap-3: #8fbfb3;
+  --heatmap-4: #6ba89a;
+  --heatmap-5: #2f6f61;
+  --heatmap-cell: 12px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DARK MODE OVERRIDES
+   ───────────────────────────────────────────────────────────── */
+
+.dark {
+  /* Semantic surface colors */
+  --color-bg: #0b0b0c;
+  --color-surface: #121213;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-muted-beige: #3d3530;
+
+  /* Text colors */
+  --color-text-primary: #e6e6e6;
+  --color-text-muted: #b9b9bb;
+
+  /* Primary palette adjustments for dark */
+  --color-primary-50: #1a1a1a;
+  --color-primary-200: #2e2e2d;
+  --color-primary-500: #bbbbbb;
+  --color-primary-700: #e6e6e6;
+  --color-primary-900: #f7f7f7;
+
+  /* Secondary palette adjustments */
+  --color-secondary-50: #0f1f1a;
+  --color-secondary-200: #1a3d32;
+  --color-secondary-500: #8fbfb3;
+  --color-secondary-700: #b5d7ce;
+  --color-secondary-900: #ddecdf;
+
+  /* Gray palette (inverted) */
+  --color-gray-100: #1a1a1a;
+  --color-gray-300: #2e2e2d;
+  --color-gray-400: #444444;
+  --color-gray-500: #777777;
+  --color-gray-600: #999999;
+  --color-gray-700: #bbbbbb;
+  --color-gray-800: #dddddd;
+  --color-gray-900: #f0f0f0;
+
+  /* Derived alpha tokens for components (dark mode) */
+  --surface-primary-a06: rgba(187, 187, 187, 0.06);
+  --success-a12: rgba(34, 197, 94, 0.15);
+  --success-a10: rgba(34, 197, 94, 0.12);
+  --warning-a12: rgba(251, 191, 36, 0.15);
+  --warning-a10: rgba(251, 191, 36, 0.12);
+  --danger-a10: rgba(248, 113, 113, 0.12);
+  --focus-ring: rgba(143, 191, 179, 0.20);
+  --table-header-bg: rgba(255, 255, 255, 0.02);
+  --gridline: rgba(255, 255, 255, 0.06);
+
+  /* Elevation / shadows for dark mode */
+  --elevation-card: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --elevation-floating: 0 12px 32px rgba(0, 0, 0, 0.7);
+
+  /* Focus ring color */
+  --color-focus: #8fbfb3;
+
+  /* Heatmap intensity tokens (dark mode - inverted) */
+  --heatmap-0: #1a1a1a;
+  --heatmap-1: #1a3d32;
+  --heatmap-2: #2f6f61;
+  --heatmap-3: #6ba89a;
+  --heatmap-4: #8fbfb3;
+  --heatmap-5: #b5d7ce;
+}
