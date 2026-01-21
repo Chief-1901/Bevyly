@@ -49,9 +49,9 @@ export async function fetcher<T>(
 ): Promise<T> {
   const { token, headers: customHeaders, ...fetchOptions } = options;
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...customHeaders,
+    ...(customHeaders as Record<string, string>),
   };
 
   if (token) {
@@ -109,9 +109,9 @@ export async function fetchPaginated<T>(
 ): Promise<{ data: T[]; pagination: ApiResponse<T>['pagination'] }> {
   const { token, headers: customHeaders, ...fetchOptions } = options || {};
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...customHeaders,
+    ...(customHeaders as Record<string, string>),
   };
 
   if (token) {
