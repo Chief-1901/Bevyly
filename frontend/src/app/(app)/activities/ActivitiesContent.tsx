@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { useToast } from '@/components/ui/Toast';
 import {
   ClipboardDocumentListIcon,
   PlusIcon,
@@ -86,6 +87,7 @@ export function ActivitiesContent({
   currentType,
 }: ActivitiesContentProps) {
   const router = useRouter();
+  const { addToast } = useToast();
   const [type, setType] = useState<ActivityType>(currentType as ActivityType);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showCallModal, setShowCallModal] = useState(false);
@@ -123,13 +125,31 @@ export function ActivitiesContent({
         body: JSON.stringify(noteForm),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Note created',
+          message: 'Your note has been saved.',
+        });
         setShowNoteModal(false);
         setNoteForm({ content: '' });
         router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to create note',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
       }
     } catch (error) {
       console.error('Failed to create note:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to create note',
+        message: 'Could not connect to the server. Please try again.',
+      });
     } finally {
       setIsCreating(false);
     }
@@ -149,13 +169,31 @@ export function ActivitiesContent({
         }),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Call logged',
+          message: 'Your call activity has been recorded.',
+        });
         setShowCallModal(false);
         setCallForm({ direction: 'outbound', status: 'completed', notes: '' });
         router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to log call',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
       }
     } catch (error) {
       console.error('Failed to log call:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to log call',
+        message: 'Could not connect to the server. Please try again.',
+      });
     } finally {
       setIsCreating(false);
     }

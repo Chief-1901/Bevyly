@@ -18,6 +18,12 @@ export type MeetingId = Brand<string, 'MeetingId'>;
 export type SequenceId = Brand<string, 'SequenceId'>;
 export type ApiKeyId = Brand<string, 'ApiKeyId'>;
 
+// Intent-Driven Sales OS ID types
+export type LeadId = Brand<string, 'LeadId'>;
+export type SignalId = Brand<string, 'SignalId'>;
+export type PatternId = Brand<string, 'PatternId'>;
+export type RecommendationId = Brand<string, 'RecommendationId'>;
+
 /**
  * Tenant context - attached to every request
  */

@@ -11,6 +11,7 @@ import {
 import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { ContextualSidebar } from '@/components/intent';
 import {
   BuildingOfficeIcon,
   GlobeAltIcon,
@@ -78,44 +79,46 @@ export default async function AccountDetailPage({
   const totalPipeline = opportunities.reduce((sum, o) => sum + (o.amount || 0), 0);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div className="flex items-start gap-4">
-          <Link
-            href="/accounts"
-            className="mt-1 p-2 -ml-2 text-text-muted hover:text-text-primary rounded-md hover:bg-gray-100 dark:hover:bg-gray-300"
-          >
-            <ArrowLeftIcon className="h-5 w-5" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-text-primary">
-                {account.name}
-              </h1>
-              <Badge
-                variant={
-                  account.status === 'active'
-                    ? 'success'
-                    : account.status === 'prospect'
-                    ? 'info'
-                    : 'neutral'
-                }
-              >
-                {account.status}
-              </Badge>
+    <div className="flex gap-6">
+      {/* Main Content */}
+      <div className="flex-1 min-w-0 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <Link
+              href="/accounts"
+              className="mt-1 p-2 -ml-2 text-text-muted hover:text-text-primary rounded-md hover:bg-gray-100 dark:hover:bg-gray-300"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </Link>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-text-primary">
+                  {account.name}
+                </h1>
+                <Badge
+                  variant={
+                    account.status === 'active'
+                      ? 'success'
+                      : account.status === 'prospect'
+                      ? 'info'
+                      : 'neutral'
+                  }
+                >
+                  {account.status}
+                </Badge>
+              </div>
+              {account.domain && (
+                <p className="text-text-muted mt-1">{account.domain}</p>
+              )}
             </div>
-            {account.domain && (
-              <p className="text-text-muted mt-1">{account.domain}</p>
-            )}
           </div>
+          <Link href={`/accounts/${id}/edit`}>
+            <Button variant="secondary" leftIcon={<PencilIcon className="h-4 w-4" />}>
+              Edit
+            </Button>
+          </Link>
         </div>
-        <Link href={`/accounts/${id}/edit`}>
-          <Button variant="secondary" leftIcon={<PencilIcon className="h-4 w-4" />}>
-            Edit
-          </Button>
-        </Link>
-      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -301,6 +304,16 @@ export default async function AccountDetailPage({
             )}
           </CardContent>
         </Card>
+      </div>
+      </div>
+
+      {/* Contextual Sidebar - Desktop only */}
+      <div className="hidden xl:block">
+        <ContextualSidebar
+          entityType="account"
+          entityId={id}
+          entityName={account.name}
+        />
       </div>
     </div>
   );

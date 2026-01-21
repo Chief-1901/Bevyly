@@ -9,6 +9,7 @@ import { SearchInput, Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
+import { useToast } from '@/components/ui/Toast';
 import {
   Table,
   TableHeader,
@@ -46,6 +47,7 @@ export function ContactsContent({
   currentSearch,
 }: ContactsContentProps) {
   const router = useRouter();
+  const { addToast } = useToast();
   const [search, setSearch] = useState(currentSearch);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -81,13 +83,31 @@ export function ContactsContent({
         body: JSON.stringify(createForm),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Contact created',
+          message: `${createForm.firstName || createForm.email} has been added.`,
+        });
         setShowCreateModal(false);
         setCreateForm({ email: '', firstName: '', lastName: '', title: '' });
         router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to create contact',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
       }
     } catch (error) {
       console.error('Failed to create contact:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to create contact',
+        message: 'Could not connect to the server. Please try again.',
+      });
     } finally {
       setIsCreating(false);
     }
@@ -97,10 +117,30 @@ export function ContactsContent({
     if (!confirm('Are you sure you want to delete this contact?')) return;
 
     try {
-      await fetch(`/api/v1/contacts/${id}`, { method: 'DELETE' });
-      router.refresh();
+      const response = await fetch(`/api/v1/contacts/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Contact deleted',
+          message: 'The contact has been removed.',
+        });
+        router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to delete contact',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
+      }
     } catch (error) {
       console.error('Failed to delete contact:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to delete contact',
+        message: 'Could not connect to the server. Please try again.',
+      });
     }
   };
 

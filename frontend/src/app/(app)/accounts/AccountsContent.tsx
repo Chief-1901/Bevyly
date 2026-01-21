@@ -10,6 +10,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import {
   Table,
   TableHeader,
@@ -49,6 +50,7 @@ export function AccountsContent({
   currentStatus,
 }: AccountsContentProps) {
   const router = useRouter();
+  const { addToast } = useToast();
   const [search, setSearch] = useState(currentSearch);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -85,13 +87,31 @@ export function AccountsContent({
         body: JSON.stringify(createForm),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Account created',
+          message: `${createForm.name} has been added.`,
+        });
         setShowCreateModal(false);
         setCreateForm({ name: '', domain: '', industry: '' });
         router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to create account',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
       }
     } catch (error) {
       console.error('Failed to create account:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to create account',
+        message: 'Could not connect to the server. Please try again.',
+      });
     } finally {
       setIsCreating(false);
     }
@@ -101,10 +121,30 @@ export function AccountsContent({
     if (!confirm('Are you sure you want to delete this account?')) return;
 
     try {
-      await fetch(`/api/v1/accounts/${id}`, { method: 'DELETE' });
-      router.refresh();
+      const response = await fetch(`/api/v1/accounts/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Account deleted',
+          message: 'The account has been removed.',
+        });
+        router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to delete account',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
+      }
     } catch (error) {
       console.error('Failed to delete account:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to delete account',
+        message: 'Could not connect to the server. Please try again.',
+      });
     }
   };
 

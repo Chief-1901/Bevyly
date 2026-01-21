@@ -218,9 +218,10 @@ async function seed() {
     console.log(`✅ Created opportunities: ${opp1Id}, ${opp2Id}`);
 
     console.log('\n🎉 Seeding completed successfully!');
-    console.log('\nDemo credentials:');
-    console.log('  Admin: admin@demo.salesos.dev / demo123!');
-    console.log('  Sales Rep: rep@demo.salesos.dev / demo123!');
+    console.log('\nDemo users created:');
+    console.log('  - admin@demo.salesos.dev (admin role)');
+    console.log('  - rep@demo.salesos.dev (sales_rep role)');
+    console.log('\n📝 See docs/GETTING-STARTED.md for login credentials.');
 
   } catch (error) {
     console.error('❌ Seeding failed:', error);

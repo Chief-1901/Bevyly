@@ -526,5 +526,186 @@ export const apiKeysApi = {
   delete: (id: string) => api.delete<void>(`/api/v1/auth/api-keys/${id}`),
 };
 
+// ─────────────────────────────────────────────────────────────
+// Leads API
+// ─────────────────────────────────────────────────────────────
+
+export interface Lead {
+  id: string;
+  customerId: string;
+  companyName: string;
+  domain?: string;
+  industry?: string;
+  employeeCount?: number;
+  revenue?: number;
+  contactFirstName?: string;
+  contactLastName?: string;
+  contactEmail?: string;
+  contactTitle?: string;
+  contactPhone?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  source: string;
+  campaignId?: string;
+  generationJobId?: string;
+  fitScore?: number;
+  intentScore?: number;
+  status: string;
+  ownerId?: string;
+  convertedAccountId?: string;
+  convertedContactId?: string;
+  convertedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeadCounts {
+  new: number;
+  contacted: number;
+  qualified: number;
+  unqualified: number;
+  converted: number;
+  rejected: number;
+}
+
+export const leadsApi = {
+  list: (params?: Record<string, string | number | string[]>) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          if (Array.isArray(value)) {
+            value.forEach(v => searchParams.append(key, String(v)));
+          } else {
+            searchParams.set(key, String(value));
+          }
+        }
+      });
+    }
+    const query = searchParams.toString();
+    return api.get<Lead[]>(`/api/v1/leads${query ? `?${query}` : ''}`);
+  },
+  get: (id: string) => api.get<Lead>(`/api/v1/leads/${id}`),
+  getCounts: () => api.get<LeadCounts>('/api/v1/leads/counts'),
+  create: (data: Partial<Lead>) => api.post<Lead>('/api/v1/leads', data),
+  update: (id: string, data: Partial<Lead>) => api.patch<Lead>(`/api/v1/leads/${id}`, data),
+  delete: (id: string) => api.delete<void>(`/api/v1/leads/${id}`),
+  convert: (id: string, data?: { accountName?: string; contactEmail?: string; ownerId?: string }) =>
+    api.post<{ lead: Lead; account: Account; contact: Contact }>(`/api/v1/leads/${id}/convert`, data),
+  reject: (id: string, reason?: string) =>
+    api.post<Lead>(`/api/v1/leads/${id}/reject`, { reason }),
+  bulkCreate: (leads: Partial<Lead>[]) =>
+    api.post<{ created: Lead[]; errors: { index: number; error: string }[] }>('/api/v1/leads/bulk', { leads }),
+};
+
+// ─────────────────────────────────────────────────────────────
+// Intent API (Signals, Recommendations, Briefing)
+// ─────────────────────────────────────────────────────────────
+
+export interface Signal {
+  id: string;
+  customerId: string;
+  entityType: string;
+  entityId: string;
+  signalType: string;
+  severity: 'high' | 'medium' | 'low';
+  title: string;
+  description?: string;
+  data: Record<string, unknown>;
+  status: string;
+  createdAt: string;
+  expiresAt?: string;
+}
+
+export interface Recommendation {
+  id: string;
+  customerId: string;
+  userId?: string;
+  patternId?: string;
+  signalId?: string;
+  actionType: string;
+  priority: 'high' | 'medium' | 'low';
+  score: number;
+  title: string;
+  rationale?: string;
+  ctaLabel?: string;
+  ctaRoute?: string;
+  ctaParams?: Record<string, string>;
+  secondaryCtaLabel?: string;
+  secondaryCtaRoute?: string;
+  cardType: string;
+  cardProps: Record<string, unknown>;
+  data: Record<string, unknown>;
+  status: string;
+  createdAt: string;
+  expiresAt?: string;
+}
+
+export interface BriefingResponse {
+  recommendations: Recommendation[];
+  signals: Signal[];
+  summary: {
+    totalSignals: number;
+    highPriority: number;
+    mediumPriority: number;
+    lowPriority: number;
+  };
+}
+
+export interface ContextualResponse {
+  recommendations: Recommendation[];
+  signals: Signal[];
+}
+
+export const intentApi = {
+  // Briefing
+  getBriefing: (limit?: number) => {
+    const query = limit ? `?limit=${limit}` : '';
+    return api.get<BriefingResponse>(`/api/v1/intent/briefing${query}`);
+  },
+  refreshBriefing: () =>
+    api.post<{ newSignals: number; newRecommendations: number }>('/api/v1/intent/briefing/refresh'),
+
+  // Contextual (for sidebars)
+  getContextual: (entityType: string, entityId: string, limit?: number) => {
+    const params = new URLSearchParams({ entityType, entityId });
+    if (limit) params.set('limit', String(limit));
+    return api.get<ContextualResponse>(`/api/v1/intent/context?${params.toString()}`);
+  },
+
+  // Signals
+  listSignals: (params?: Record<string, string | number>) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) searchParams.set(key, String(value));
+      });
+    }
+    const query = searchParams.toString();
+    return api.get<Signal[]>(`/api/v1/intent/signals${query ? `?${query}` : ''}`);
+  },
+  getSignal: (id: string) => api.get<Signal>(`/api/v1/intent/signals/${id}`),
+  resolveSignal: (id: string, status?: 'resolved' | 'dismissed') =>
+    api.post<Signal>(`/api/v1/intent/signals/${id}/resolve`, { status }),
+
+  // Recommendations
+  listRecommendations: (params?: Record<string, string | number>) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) searchParams.set(key, String(value));
+      });
+    }
+    const query = searchParams.toString();
+    return api.get<Recommendation[]>(`/api/v1/intent/recommendations${query ? `?${query}` : ''}`);
+  },
+  getRecommendation: (id: string) => api.get<Recommendation>(`/api/v1/intent/recommendations/${id}`),
+  updateRecommendation: (id: string, status: 'acted' | 'dismissed' | 'snoozed', snoozedUntil?: string) =>
+    api.patch<Recommendation>(`/api/v1/intent/recommendations/${id}`, { status, snoozedUntil }),
+  recordFeedback: (id: string, action: 'accepted' | 'declined' | 'snoozed', feedbackData?: Record<string, unknown>) =>
+    api.post<void>(`/api/v1/intent/recommendations/${id}/feedback`, { action, feedbackData }),
+};
+
 export { AuthError };
 

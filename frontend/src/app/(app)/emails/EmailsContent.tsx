@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { useToast } from '@/components/ui/Toast';
 import {
   Table,
   TableHeader,
@@ -83,6 +84,7 @@ export function EmailsContent({
   currentStatus,
 }: EmailsContentProps) {
   const router = useRouter();
+  const { addToast } = useToast();
   const [status, setStatus] = useState<EmailStatus>(currentStatus as EmailStatus);
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -118,13 +120,31 @@ export function EmailsContent({
         body: JSON.stringify(composeForm),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Email sent',
+          message: `Email to ${composeForm.toEmail} has been sent.`,
+        });
         setShowComposeModal(false);
         setComposeForm({ toEmail: '', toName: '', subject: '', bodyText: '' });
         router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to send email',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
       }
     } catch (error) {
       console.error('Failed to send email:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to send email',
+        message: 'Could not connect to the server. Please try again.',
+      });
     } finally {
       setIsSending(false);
     }
@@ -140,13 +160,31 @@ export function EmailsContent({
         body: JSON.stringify(composeForm),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Draft saved',
+          message: 'Your email draft has been saved.',
+        });
         setShowComposeModal(false);
         setComposeForm({ toEmail: '', toName: '', subject: '', bodyText: '' });
         router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to save draft',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
       }
     } catch (error) {
       console.error('Failed to save draft:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to save draft',
+        message: 'Could not connect to the server. Please try again.',
+      });
     } finally {
       setIsSending(false);
     }

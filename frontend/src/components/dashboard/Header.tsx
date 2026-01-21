@@ -1,25 +1,75 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
   Bars3Icon,
   BellIcon,
-  CalendarIcon,
-  ArrowDownTrayIcon,
   MagnifyingGlassIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 import { ThemeSwitch } from '@/components/ThemeSwitch';
-import { Button, IconButton } from '@/components/ui/Button';
+import { IconButton } from '@/components/ui/Button';
 import { SearchInput } from '@/components/ui/Input';
+import { UserDropdown } from './UserDropdown';
 import clsx from 'clsx';
 
 interface HeaderProps {
   onMenuClick: () => void;
   sidebarCollapsed: boolean;
+  user?: {
+    name?: string;
+    email?: string;
+    initials?: string;
+  };
 }
 
-export function Header({ onMenuClick, sidebarCollapsed }: HeaderProps) {
+// Map routes to human-readable names
+const routeNames: Record<string, string> = {
+  briefing: 'Briefing',
+  leads: 'Leads',
+  accounts: 'Accounts',
+  contacts: 'Contacts',
+  opportunities: 'Opportunities',
+  emails: 'Emails',
+  calendar: 'Calendar',
+  meetings: 'Meetings',
+  sequences: 'Sequences',
+  activities: 'Activities',
+  dashboard: 'Dashboard',
+  analytics: 'Analytics',
+  settings: 'Settings',
+  profile: 'Profile',
+  'api-keys': 'API Keys',
+  edit: 'Edit',
+  new: 'New',
+};
+
+function generateBreadcrumbs(pathname: string): { label: string; href: string }[] {
+  const segments = pathname.split('/').filter(Boolean);
+  const breadcrumbs: { label: string; href: string }[] = [];
+  
+  let currentPath = '';
+  for (const segment of segments) {
+    currentPath += `/${segment}`;
+    
+    // Skip IDs (UUIDs or nanoids)
+    if (segment.match(/^[a-zA-Z0-9_-]{10,}$/)) {
+      continue;
+    }
+    
+    const label = routeNames[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
+    breadcrumbs.push({ label, href: currentPath });
+  }
+  
+  return breadcrumbs;
+}
+
+export function Header({ onMenuClick, sidebarCollapsed, user }: HeaderProps) {
   const [searchValue, setSearchValue] = useState('');
+  const pathname = usePathname();
+  const breadcrumbs = generateBreadcrumbs(pathname);
 
   return (
     <header
@@ -41,16 +91,35 @@ export function Header({ onMenuClick, sidebarCollapsed }: HeaderProps) {
           <Bars3Icon className="h-6 w-6" aria-hidden="true" />
         </button>
         <nav aria-label="Breadcrumb" className="hidden sm:block">
-          <ol className="flex items-center space-x-2 text-sm">
-            <li>
-              <span className="text-text-muted">Dashboard</span>
-            </li>
-            <li aria-hidden="true">
-              <span className="text-text-muted">/</span>
-            </li>
-            <li>
-              <span className="font-medium text-text-primary">Overview</span>
-            </li>
+          <ol className="flex items-center text-sm">
+            {breadcrumbs.length === 0 ? (
+              <li>
+                <span className="font-medium text-text-primary">Home</span>
+              </li>
+            ) : (
+              breadcrumbs.map((crumb, index) => (
+                <li key={crumb.href} className="flex items-center">
+                  {index > 0 && (
+                    <ChevronRightIcon 
+                      className="h-4 w-4 mx-2 text-text-muted flex-shrink-0" 
+                      aria-hidden="true" 
+                    />
+                  )}
+                  {index === breadcrumbs.length - 1 ? (
+                    <span className="font-medium text-text-primary">
+                      {crumb.label}
+                    </span>
+                  ) : (
+                    <Link
+                      href={crumb.href}
+                      className="text-text-muted hover:text-text-primary transition-colors"
+                    >
+                      {crumb.label}
+                    </Link>
+                  )}
+                </li>
+              ))
+            )}
           </ol>
         </nav>
       </div>
@@ -58,7 +127,7 @@ export function Header({ onMenuClick, sidebarCollapsed }: HeaderProps) {
       {/* Center: Search */}
       <div className="hidden md:block flex-1 max-w-xl mx-8">
         <SearchInput
-          placeholder="Search transactions..."
+          placeholder="Search..."
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           onClear={() => setSearchValue('')}
@@ -80,40 +149,11 @@ export function Header({ onMenuClick, sidebarCollapsed }: HeaderProps) {
           <BellIcon className="h-[18px] w-[18px]" aria-hidden="true" />
         </IconButton>
 
-        {/* Date picker chip */}
-        <button
-          className={clsx(
-            'hidden lg:flex items-center gap-2 h-9 px-3 rounded-md',
-            'bg-surface-primary-a06 text-sm text-text-primary',
-            'hover:bg-gray-300',
-            'transition-colors duration-120',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus'
-          )}
-        >
-          <CalendarIcon className="h-4 w-4" aria-hidden="true" />
-          <span>Jan 1 - Jan 31, 2026</span>
-        </button>
-
-        {/* Export CSV */}
-        <Button
-          variant="secondary"
-          size="sm"
-          leftIcon={<ArrowDownTrayIcon className="h-4 w-4" aria-hidden="true" />}
-          className="hidden sm:flex"
-        >
-          Export CSV
-        </Button>
-
         {/* Theme switch */}
         <ThemeSwitch />
 
-        {/* Avatar */}
-        <button
-          className="ml-2 h-10 w-10 rounded-full bg-secondary-500 flex items-center justify-center text-white font-medium transition-all duration-120 hover:ring-2 hover:ring-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-          aria-label="User menu"
-        >
-          JD
-        </button>
+        {/* User Dropdown */}
+        <UserDropdown user={user} />
       </div>
     </header>
   );

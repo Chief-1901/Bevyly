@@ -1,7 +1,12 @@
 /**
  * SalesOS CRM Service
  * 
- * Handles CRM entities: Accounts, Contacts, and Opportunities.
+ * Handles CRM entities and Intent-Driven Sales OS features:
+ * - Accounts, Contacts, Opportunities (core CRM)
+ * - Leads (pre-conversion prospects)
+ * - Intent (signals, recommendations, briefing)
+ * 
+ * Features:
  * - Multi-tenant data isolation via customer_id
  * - RBAC authorization
  * - Event publishing for state changes
@@ -21,6 +26,8 @@ import { generateRequestId } from '../../shared/utils/id.js';
 import { errorHandler, notFoundHandler } from '../../shared/middleware/error.js';
 import { healthRoutes } from '../../shared/routes/health.js';
 import { crmRoutes } from '../../modules/crm/routes.js';
+import { leadsRouter } from '../../modules/leads/routes.js';
+import { intentRouter } from '../../modules/intent/routes.js';
 import { requireTenant, validateTenantConsistency } from '../../shared/middleware/tenant-guard.js';
 import { idempotency } from '../../shared/middleware/idempotency.js';
 
@@ -92,6 +99,24 @@ app.use('/opportunities', ...tenantMiddleware, crmRoutes.opportunities);
 app.use('/api/v1/accounts', ...tenantMiddleware, crmRoutes.accounts);
 app.use('/api/v1/contacts', ...tenantMiddleware, crmRoutes.contacts);
 app.use('/api/v1/opportunities', ...tenantMiddleware, crmRoutes.opportunities);
+
+// ─────────────────────────────────────────────────────────────
+// Leads routes (Intent-Driven Sales OS)
+// ─────────────────────────────────────────────────────────────
+
+// Gateway strips /api/v1 prefix, so we receive /leads
+app.use('/leads', ...tenantMiddleware, leadsRouter);
+// Also mount at full path for direct access without the gateway
+app.use('/api/v1/leads', ...tenantMiddleware, leadsRouter);
+
+// ─────────────────────────────────────────────────────────────
+// Intent routes (Signals, Recommendations, Briefing)
+// ─────────────────────────────────────────────────────────────
+
+// Gateway strips /api/v1 prefix, so we receive /intent
+app.use('/intent', ...tenantMiddleware, intentRouter);
+// Also mount at full path for direct access without the gateway
+app.use('/api/v1/intent', ...tenantMiddleware, intentRouter);
 
 // ─────────────────────────────────────────────────────────────
 // Error handling

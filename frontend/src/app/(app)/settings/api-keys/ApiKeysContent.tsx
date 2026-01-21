@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { useToast } from '@/components/ui/Toast';
 import {
   Table,
   TableHeader,
@@ -43,6 +44,7 @@ function formatDate(dateString?: string): string {
 
 export function ApiKeysContent({ apiKeys }: ApiKeysContentProps) {
   const router = useRouter();
+  const { addToast } = useToast();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [newKey, setNewKey] = useState('');
@@ -67,18 +69,33 @@ export function ApiKeysContent({ apiKeys }: ApiKeysContentProps) {
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.data?.key) {
-          setNewKey(data.data.key);
-          setShowCreateModal(false);
-          setShowKeyModal(true);
-          setCreateForm({ name: '', expiresInDays: '90' });
-          router.refresh();
-        }
+      const data = await response.json();
+
+      if (response.ok && data.success && data.data?.key) {
+        setNewKey(data.data.key);
+        setShowCreateModal(false);
+        setShowKeyModal(true);
+        setCreateForm({ name: '', expiresInDays: '90' });
+        addToast({
+          type: 'success',
+          title: 'API key created',
+          message: 'Your new API key is ready to use.',
+        });
+        router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to create API key',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
       }
     } catch (error) {
       console.error('Failed to create API key:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to create API key',
+        message: 'Could not connect to the server. Please try again.',
+      });
     } finally {
       setIsCreating(false);
     }
@@ -90,10 +107,30 @@ export function ApiKeysContent({ apiKeys }: ApiKeysContentProps) {
     }
 
     try {
-      await fetch(`/api/v1/auth/api-keys/${id}`, { method: 'DELETE' });
-      router.refresh();
+      const response = await fetch(`/api/v1/auth/api-keys/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'API key revoked',
+          message: 'The API key has been permanently removed.',
+        });
+        router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to revoke API key',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
+      }
     } catch (error) {
       console.error('Failed to revoke API key:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to revoke API key',
+        message: 'Could not connect to the server. Please try again.',
+      });
     }
   };
 
@@ -101,9 +138,19 @@ export function ApiKeysContent({ apiKeys }: ApiKeysContentProps) {
     try {
       await navigator.clipboard.writeText(newKey);
       setCopied(true);
+      addToast({
+        type: 'success',
+        title: 'Copied to clipboard',
+        duration: 2000,
+      });
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error('Failed to copy:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to copy',
+        message: 'Could not copy to clipboard.',
+      });
     }
   };
 

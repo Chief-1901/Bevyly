@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { useToast } from '@/components/ui/Toast';
 import { Badge } from '@/components/ui/Badge';
 import { Menu, MenuItem } from '@/components/ui/Menu';
 import {
@@ -84,6 +85,7 @@ export function MeetingsContent({
   currentStatus,
 }: MeetingsContentProps) {
   const router = useRouter();
+  const { addToast } = useToast();
   const [status, setStatus] = useState<MeetingStatus>(currentStatus as MeetingStatus);
   const [showProposeModal, setShowProposeModal] = useState(false);
   const [isProposing, setIsProposing] = useState(false);
@@ -128,13 +130,31 @@ export function MeetingsContent({
         }),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Meeting proposed',
+          message: `${proposeForm.title} has been scheduled.`,
+        });
         setShowProposeModal(false);
         setProposeForm({ title: '', type: 'video_call', date: '', startTime: '', duration: '30' });
         router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to propose meeting',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
       }
     } catch (error) {
       console.error('Failed to propose meeting:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to propose meeting',
+        message: 'Could not connect to the server. Please try again.',
+      });
     } finally {
       setIsProposing(false);
     }
@@ -142,10 +162,35 @@ export function MeetingsContent({
 
   const handleAction = async (id: string, action: 'confirm' | 'cancel' | 'complete' | 'no-show') => {
     try {
-      await fetch(`/api/v1/calendar/meetings/${id}/${action}`, { method: 'POST' });
-      router.refresh();
+      const response = await fetch(`/api/v1/calendar/meetings/${id}/${action}`, { method: 'POST' });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        const actionLabels = {
+          confirm: 'confirmed',
+          cancel: 'cancelled',
+          complete: 'marked as complete',
+          'no-show': 'marked as no-show',
+        };
+        addToast({
+          type: 'success',
+          title: `Meeting ${actionLabels[action]}`,
+        });
+        router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: `Failed to ${action} meeting`,
+          message: data.error?.message || 'An unexpected error occurred',
+        });
+      }
     } catch (error) {
       console.error(`Failed to ${action} meeting:`, error);
+      addToast({
+        type: 'error',
+        title: `Failed to ${action} meeting`,
+        message: 'Could not connect to the server. Please try again.',
+      });
     }
   };
 

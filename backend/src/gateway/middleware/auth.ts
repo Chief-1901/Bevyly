@@ -23,8 +23,29 @@ declare global {
 }
 
 /**
+ * Parse cookies from Cookie header string
+ */
+function parseCookies(cookieHeader: string | undefined): Record<string, string> {
+  const cookies: Record<string, string> = {};
+  if (!cookieHeader) return cookies;
+
+  cookieHeader.split(';').forEach((cookie) => {
+    const [name, ...rest] = cookie.trim().split('=');
+    if (name && rest.length > 0) {
+      cookies[name] = rest.join('=');
+    }
+  });
+
+  return cookies;
+}
+
+/**
  * Gateway authentication middleware
  * Verifies JWT tokens and extracts tenant context
+ * 
+ * Token sources (in priority order):
+ * 1. Authorization: Bearer <token> header
+ * 2. access_token cookie (for browser requests via proxy/rewrite)
  */
 export async function gatewayAuthMiddleware(
   req: Request,
@@ -32,7 +53,7 @@ export async function gatewayAuthMiddleware(
   next: NextFunction
 ): Promise<void> {
   try {
-    // Get token from Authorization header or cookie
+    // Get token from Authorization header first (highest priority)
     let token: string | undefined;
 
     const authHeader = req.headers.authorization;
@@ -40,11 +61,37 @@ export async function gatewayAuthMiddleware(
       token = authHeader.slice(7);
     }
 
+    // If no Authorization header, try to get token from cookie
+    // This supports client-side fetches that go through Next.js rewrite proxy
+    if (!token) {
+      const cookies = parseCookies(req.headers.cookie);
+      token = cookies['access_token'];
+      
+      if (token) {
+        authLogger.debug({ path: req.path }, 'Using access_token from cookie');
+      }
+    }
+
     // Also check for API key
     const apiKey = req.headers['x-api-key'] as string;
     if (apiKey) {
-      // API key auth is handled by individual services
-      // Just pass through and let the service validate
+      // API key authentication
+      // SECURITY: Validate API key at gateway level before forwarding to services
+      // API keys are validated by the auth service, but we need to ensure
+      // the key exists and has basic format validation before passing through
+      if (!apiKey || apiKey.length < 20) {
+        throw new UnauthorizedError('Invalid API key format');
+      }
+
+      // Mark request as API key authenticated
+      // The downstream service will perform full validation
+      authLogger.debug(
+        { path: req.path, keyPrefix: apiKey.substring(0, 8) + '...' },
+        'API key authentication - forwarding to service for validation'
+      );
+
+      // Set a flag so downstream services know this is API key auth
+      req.headers['x-auth-method'] = 'api-key';
       return next();
     }
 

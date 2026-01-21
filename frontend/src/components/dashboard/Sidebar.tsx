@@ -16,6 +16,9 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Squares2X2Icon,
+  SparklesIcon,
+  UserGroupIcon,
+  ChartBarIcon,
 } from '@heroicons/react/24/outline';
 
 interface NavItem {
@@ -32,12 +35,13 @@ interface NavGroup {
 const navigation: NavGroup[] = [
   {
     items: [
-      { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+      { name: 'Briefing', href: '/briefing', icon: SparklesIcon },
     ],
   },
   {
     title: 'CRM',
     items: [
+      { name: 'Leads', href: '/leads', icon: UserGroupIcon },
       { name: 'Accounts', href: '/accounts', icon: BuildingOfficeIcon },
       { name: 'Contacts', href: '/contacts', icon: UserIcon },
       { name: 'Opportunities', href: '/opportunities', icon: CurrencyDollarIcon },
@@ -55,6 +59,13 @@ const navigation: NavGroup[] = [
     title: 'Activity',
     items: [
       { name: 'Activities', href: '/activities', icon: ClipboardDocumentListIcon },
+    ],
+  },
+  {
+    title: 'Analytics',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+      { name: 'Reports', href: '/analytics', icon: ChartBarIcon },
     ],
   },
   {
@@ -86,7 +97,7 @@ export function Sidebar({ collapsed, onCollapse }: SidebarProps) {
       {/* Logo / Org Selector */}
       <div className="flex h-header items-center justify-between px-5 border-b border-border">
         {!collapsed && (
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/briefing" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-md bg-secondary-500 flex items-center justify-center">
               <Squares2X2Icon className="h-[18px] w-[18px] text-white" aria-hidden="true" />
             </div>

@@ -22,6 +22,8 @@ import { emailRoutes } from './modules/email/routes.js';
 import { calendarRoutes } from './modules/calendar/routes.js';
 import { sequenceRoutes } from './modules/sequences/routes.js';
 import { activityRoutes } from './modules/activities/routes.js';
+import { leadsRouter } from './modules/leads/routes.js';
+import { intentRouter } from './modules/intent/routes.js';
 
 const app = express();
 
@@ -101,6 +103,8 @@ app.use('/api/v1/emails', emailRoutes);
 app.use('/api/v1/calendar', calendarRoutes);
 app.use('/api/v1/sequences', sequenceRoutes);
 app.use('/api/v1/activities', activityRoutes);
+app.use('/api/v1/leads', leadsRouter);
+app.use('/api/v1/intent', intentRouter);
 
 // ─────────────────────────────────────────────────────────────
 // Error handling

@@ -1,8 +1,9 @@
 'use client';
 
 import { Fragment, type ReactNode } from 'react';
-import { Menu as HeadlessMenu, Transition } from '@headlessui/react';
+import { Menu as HeadlessMenu, Transition, Portal } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/react';
 import clsx from 'clsx';
 
 interface MenuProps {
@@ -12,9 +13,16 @@ interface MenuProps {
 }
 
 export function Menu({ children, trigger, align = 'right' }: MenuProps) {
+  const { refs, floatingStyles } = useFloating({
+    placement: align === 'right' ? 'bottom-end' : 'bottom-start',
+    middleware: [offset(4), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  });
+
   return (
     <HeadlessMenu as="div" className="relative inline-block text-left">
       <HeadlessMenu.Button
+        ref={refs.setReference}
         className={clsx(
           'inline-flex items-center justify-center',
           'h-8 w-8 rounded-md',
@@ -27,28 +35,30 @@ export function Menu({ children, trigger, align = 'right' }: MenuProps) {
         <span className="sr-only">Open menu</span>
       </HeadlessMenu.Button>
 
-      <Transition
-        as={Fragment}
-        enter="transition ease-out duration-120"
-        enterFrom="transform opacity-0 scale-95"
-        enterTo="transform opacity-100 scale-100"
-        leave="transition ease-in duration-120"
-        leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-95"
-      >
-        <HeadlessMenu.Items
-          className={clsx(
-            'absolute z-50 mt-2 w-48',
-            'origin-top-right rounded-md',
-            'bg-surface border border-border shadow-floating',
-            'divide-y divide-gridline',
-            'focus:outline-none',
-            align === 'right' ? 'right-0' : 'left-0'
-          )}
+      <Portal>
+        <Transition
+          as={Fragment}
+          enter="transition ease-out duration-120"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-120"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
         >
-          <div className="py-1">{children}</div>
-        </HeadlessMenu.Items>
-      </Transition>
+          <HeadlessMenu.Items
+            ref={refs.setFloating}
+            style={floatingStyles}
+            className={clsx(
+              'z-[9999] w-48',
+              'rounded-md',
+              'bg-surface border border-border shadow-floating',
+              'focus:outline-none'
+            )}
+          >
+            <div className="py-1">{children}</div>
+          </HeadlessMenu.Items>
+        </Transition>
+      </Portal>
     </HeadlessMenu>
   );
 }

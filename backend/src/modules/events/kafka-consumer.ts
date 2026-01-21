@@ -15,6 +15,7 @@ import { processedEvents } from '../../shared/db/schema/outbox.js';
 import { sleep } from '../../shared/utils/index.js';
 import { activityHandler } from './handlers/activity.handler.js';
 import { engagementHandler } from './handlers/engagement.handler.js';
+import { intentSignalsHandler } from './handlers/intent-signals.handler.js';
 
 const consumerLogger = createLogger({ module: 'kafka-consumer' });
 
@@ -49,28 +50,35 @@ const EVENT_HANDLERS: Record<string, EventHandler[]> = {
   'contact.deleted': [activityHandler.onContactDeleted],
 
   // Opportunity events
-  'opportunity.created': [activityHandler.onOpportunityCreated],
-  'opportunity.updated': [activityHandler.onOpportunityUpdated],
-  'opportunity.stage_changed': [activityHandler.onOpportunityStageChanged],
-  'opportunity.won': [activityHandler.onOpportunityWon],
-  'opportunity.lost': [activityHandler.onOpportunityLost],
+  'opportunity.created': [activityHandler.onOpportunityCreated, intentSignalsHandler.onOpportunityCreated],
+  'opportunity.updated': [activityHandler.onOpportunityUpdated, intentSignalsHandler.onOpportunityUpdated],
+  'opportunity.stage_changed': [activityHandler.onOpportunityStageChanged, intentSignalsHandler.onOpportunityStageChanged],
+  'opportunity.won': [activityHandler.onOpportunityWon, intentSignalsHandler.onOpportunityWon],
+  'opportunity.lost': [activityHandler.onOpportunityLost, intentSignalsHandler.onOpportunityLost],
+
+  // Lead events
+  'lead.created': [intentSignalsHandler.onLeadCreated],
+  'lead.converted': [intentSignalsHandler.onLeadConverted],
 
   // Email events
   'email.sent': [activityHandler.onEmailSent, engagementHandler.onEmailSent],
   'email.opened': [activityHandler.onEmailOpened, engagementHandler.onEmailOpened],
   'email.clicked': [activityHandler.onEmailClicked, engagementHandler.onEmailClicked],
-  'email.replied': [activityHandler.onEmailReplied, engagementHandler.onEmailReplied],
-  'email.bounced': [activityHandler.onEmailBounced],
+  'email.replied': [activityHandler.onEmailReplied, engagementHandler.onEmailReplied, intentSignalsHandler.onEmailReplied],
+  'email.bounced': [activityHandler.onEmailBounced, intentSignalsHandler.onEmailBounced],
 
   // Meeting events
   'meeting.proposed': [activityHandler.onMeetingProposed],
   'meeting.confirmed': [activityHandler.onMeetingConfirmed, engagementHandler.onMeetingConfirmed],
-  'meeting.completed': [activityHandler.onMeetingCompleted, engagementHandler.onMeetingCompleted],
+  'meeting.completed': [activityHandler.onMeetingCompleted, engagementHandler.onMeetingCompleted, intentSignalsHandler.onMeetingCompleted],
   'meeting.cancelled': [activityHandler.onMeetingCancelled],
-  'meeting.no_show': [activityHandler.onMeetingNoShow],
+  'meeting.no_show': [activityHandler.onMeetingNoShow, intentSignalsHandler.onMeetingNoShow],
+
+  // Activity events
+  'activity.created': [intentSignalsHandler.onActivityLogged],
 
   // Engagement events
-  'engagement.score_updated': [engagementHandler.onScoreUpdated],
+  'engagement.score_updated': [engagementHandler.onScoreUpdated, intentSignalsHandler.onEngagementScoreUpdated],
   'engagement.intent_signal_detected': [engagementHandler.onIntentSignal],
 };
 

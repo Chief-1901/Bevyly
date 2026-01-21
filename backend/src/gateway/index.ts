@@ -156,6 +156,23 @@ app.use('/api/', (req, res, next) => {
 app.use('/api/', tenantContextMiddleware);
 
 // ─────────────────────────────────────────────────────────────
+// Tenant Header Injection (BEFORE proxying)
+// ─────────────────────────────────────────────────────────────
+// This middleware sets tenant headers directly on req.headers
+// BEFORE the proxy processes the request. This is necessary because
+// http-proxy-middleware's proxyReq callback can have timing issues
+// with POST requests containing bodies (especially with Expect: 100-continue)
+app.use('/api/', (req: any, _res, next) => {
+  if (req.tenantContext) {
+    req.headers['x-customer-id'] = req.tenantContext.customerId;
+    req.headers['x-user-id'] = req.tenantContext.userId;
+    req.headers['x-user-email'] = req.tenantContext.userEmail;
+    req.headers['x-user-roles'] = JSON.stringify(req.tenantContext.roles);
+  }
+  next();
+});
+
+// ─────────────────────────────────────────────────────────────
 // Service Proxies
 // ─────────────────────────────────────────────────────────────
 
@@ -166,7 +183,7 @@ const createProxyOptions = (target: string, serviceName: string, pathRewrite?: O
   pathRewrite, // Optional path rewriting
   on: {
     proxyReq: (proxyReq, req: any) => {
-      // Forward tenant context headers
+      // Forward tenant context headers (also set as fallback in proxyReq)
       if (req.tenantContext) {
         proxyReq.setHeader('x-customer-id', req.tenantContext.customerId);
         proxyReq.setHeader('x-user-id', req.tenantContext.userId);
@@ -182,6 +199,7 @@ const createProxyOptions = (target: string, serviceName: string, pathRewrite?: O
           service: serviceName, 
           path: req.path,
           target,
+          hasTenantContext: !!req.tenantContext,
         }, 
         'Proxying request'
       );
@@ -247,6 +265,18 @@ app.use(
 app.use(
   '/api/v1/activities',
   createProxyMiddleware(createProxyOptions(SERVICE_URLS.activities, 'activities'))
+);
+
+// Leads (via CRM Service)
+app.use(
+  '/api/v1/leads',
+  createProxyMiddleware(createProxyOptions(SERVICE_URLS.crm, 'crm', (path) => `/leads${path}`))
+);
+
+// Intent Service (signals, recommendations, briefing)
+app.use(
+  '/api/v1/intent',
+  createProxyMiddleware(createProxyOptions(SERVICE_URLS.crm, 'crm', (path) => `/intent${path}`))
 );
 
 // ─────────────────────────────────────────────────────────────

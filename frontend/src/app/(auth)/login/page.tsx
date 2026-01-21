@@ -62,8 +62,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Redirect to dashboard on success
-      router.push('/dashboard');
+      // Redirect to briefing on success
+      router.push('/briefing');
       router.refresh();
     } catch {
       setErrors({ general: 'An unexpected error occurred' });

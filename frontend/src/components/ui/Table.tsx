@@ -7,11 +7,11 @@ interface TableProps extends HTMLAttributes<HTMLTableElement> {
   maxHeight?: string;
 }
 
-export function Table({ children, className, maxHeight = '400px', ...props }: TableProps) {
+export function Table({ children, className, maxHeight, ...props }: TableProps) {
   return (
     <div
-      className="overflow-x-auto overflow-y-auto scrollbar-thin"
-      style={{ maxHeight }}
+      className="overflow-x-auto scrollbar-thin"
+      style={maxHeight ? { maxHeight, overflowY: 'auto' } : undefined}
     >
       <table
         className={clsx('w-full text-sm text-left', className)}

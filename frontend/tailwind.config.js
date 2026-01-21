@@ -81,6 +81,7 @@ module.exports = {
 
       spacing: {
         18: '4.5rem', // 72px header height
+        header: 'var(--header-height)', // For pt-header, mt-header etc.
         sidebar: 'var(--sidebar-width)',
         'sidebar-collapsed': 'var(--sidebar-collapsed-width)',
         kpi: 'var(--space-kpi)',

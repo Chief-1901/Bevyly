@@ -15,3 +15,6 @@ export * from './outbox.js';
 export * from './audit.js';
 export * from './email-providers.js';
 
+// Intent-Driven Sales OS schemas
+export * from './leads.js';
+export * from './signals.js';

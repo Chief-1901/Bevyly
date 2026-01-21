@@ -6,7 +6,7 @@ export default async function Home() {
   const hasAuth = cookieStore.has('access_token');
   
   if (hasAuth) {
-    redirect('/dashboard');
+    redirect('/briefing');
   } else {
     redirect('/login');
   }

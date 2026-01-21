@@ -9,6 +9,10 @@ import type {
   MeetingId,
   SequenceId,
   ApiKeyId,
+  LeadId,
+  SignalId,
+  PatternId,
+  RecommendationId,
 } from '../types/index.js';
 
 /**
@@ -30,6 +34,13 @@ export const generateEmailId = (): EmailId => generateId('eml') as EmailId;
 export const generateMeetingId = (): MeetingId => generateId('mtg') as MeetingId;
 export const generateSequenceId = (): SequenceId => generateId('seq') as SequenceId;
 export const generateApiKeyId = (): ApiKeyId => generateId('key') as ApiKeyId;
+
+// Intent-Driven Sales OS ID generators
+export const generateLeadId = (): LeadId => generateId('lead') as LeadId;
+export const generateSignalId = (): SignalId => generateId('sig') as SignalId;
+export const generatePatternId = (): PatternId => generateId('pat') as PatternId;
+export const generateRecommendationId = (): RecommendationId => generateId('rec') as RecommendationId;
+export const generateFeedbackId = (): string => generateId('rfb');
 
 /**
  * Generate a request ID for tracing

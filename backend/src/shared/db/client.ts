@@ -10,35 +10,48 @@ let pool: pg.Pool | null = null;
 
 /**
  * Build SSL configuration from config
- * 
- * For Supabase and other cloud PostgreSQL providers that use self-signed
- * or intermediate CAs, we need to explicitly disable certificate verification.
+ *
+ * For Supabase and other cloud PostgreSQL providers, we use proper SSL configuration.
+ *
+ * SECURITY NOTE: In production, always use rejectUnauthorized: true with proper CA certificates.
+ * The rejectUnauthorized: false option should ONLY be used in development environments
+ * after understanding the security implications (vulnerability to MITM attacks).
  */
 function getSslConfig(): boolean | pg.ConnectionConfig['ssl'] {
   if (!config.databaseSsl) {
     return false; // SSL disabled
   }
-  
-  // When rejectUnauthorized is false, we completely skip certificate verification
-  // This is needed for Supabase in development where the cert chain may not be trusted
+
+  // When rejectUnauthorized is false, we skip certificate verification
+  // WARNING: This makes the connection vulnerable to MITM attacks
+  // Only use in development with trusted networks
   if (!config.databaseSslRejectUnauthorized) {
-    // CRITICAL FIX: Set NODE_TLS_REJECT_UNAUTHORIZED globally as a last resort
-    // This is needed because pg-pool might create connections before our SSL config is applied
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-    
-    // Use comprehensive SSL bypass configuration
-    // This tells pg to use SSL but not verify the certificate
+    if (config.nodeEnv === 'production') {
+      logger.warn(
+        'DATABASE_SSL_REJECT_UNAUTHORIZED=false in production is a security risk. ' +
+        'Consider configuring proper CA certificates.'
+      );
+    }
+
+    // Use SSL with relaxed certificate verification for development
+    // NOTE: Removed global NODE_TLS_REJECT_UNAUTHORIZED override for security
     return {
       rejectUnauthorized: false,
-      // Bypass all certificate checks - must return undefined (not void)
-      checkServerIdentity: () => undefined as any,
-      // Additional TLS options to force SSL mode without verification
-      requestCert: true,
-      rejectUnknown: false,
     };
   }
-  
-  // Default: require valid certificates
+
+  // Production: require valid certificates
+  // For Supabase, you can download the CA certificate from the dashboard
+  // and set it via DATABASE_CA_CERT environment variable
+  const caCert = process.env.DATABASE_CA_CERT;
+  if (caCert) {
+    return {
+      rejectUnauthorized: true,
+      ca: caCert,
+    };
+  }
+
+  // Default: require valid certificates from system CA store
   return {
     rejectUnauthorized: true,
   };

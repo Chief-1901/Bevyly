@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { useToast } from '@/components/ui/Toast';
 import {
   Table,
   TableHeader,
@@ -80,6 +81,7 @@ export function SequencesContent({
   currentStatus,
 }: SequencesContentProps) {
   const router = useRouter();
+  const { addToast } = useToast();
   const [status, setStatus] = useState<SequenceStatus>(currentStatus as SequenceStatus);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -116,8 +118,14 @@ export function SequencesContent({
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Sequence created',
+          message: `${createForm.name} has been created.`,
+        });
         setShowCreateModal(false);
         setCreateForm({ name: '', description: '' });
         // Navigate to sequence builder
@@ -126,9 +134,20 @@ export function SequencesContent({
         } else {
           router.refresh();
         }
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to create sequence',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
       }
     } catch (error) {
       console.error('Failed to create sequence:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to create sequence',
+        message: 'Could not connect to the server. Please try again.',
+      });
     } finally {
       setIsCreating(false);
     }
@@ -138,10 +157,30 @@ export function SequencesContent({
     if (!confirm('Are you sure you want to archive this sequence?')) return;
 
     try {
-      await fetch(`/api/v1/sequences/${id}`, { method: 'DELETE' });
-      router.refresh();
+      const response = await fetch(`/api/v1/sequences/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        addToast({
+          type: 'success',
+          title: 'Sequence archived',
+          message: 'The sequence has been archived.',
+        });
+        router.refresh();
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Failed to archive sequence',
+          message: data.error?.message || 'An unexpected error occurred',
+        });
+      }
     } catch (error) {
       console.error('Failed to archive sequence:', error);
+      addToast({
+        type: 'error',
+        title: 'Failed to archive sequence',
+        message: 'Could not connect to the server. Please try again.',
+      });
     }
   };
 
