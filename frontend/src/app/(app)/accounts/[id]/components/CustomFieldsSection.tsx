@@ -13,6 +13,9 @@ interface CustomFieldsSectionProps {
   editable?: boolean;
 }
 
+// Prevent prototype pollution
+const FORBIDDEN_KEYS = ['__proto__', 'constructor', 'prototype', 'toString', 'valueOf', 'hasOwnProperty'];
+
 export function CustomFieldsSection({
   customFields,
   accountId,
@@ -27,8 +30,16 @@ export function CustomFieldsSection({
   const [newField, setNewField] = useState({ key: '', value: '' });
 
   const handleAddField = () => {
-    if (!newField.key.trim()) {
+    const trimmedKey = newField.key.trim();
+
+    if (!trimmedKey) {
       toast.error('Invalid field', 'Field name cannot be empty');
+      return;
+    }
+
+    // Prevent prototype pollution
+    if (FORBIDDEN_KEYS.includes(trimmedKey) || trimmedKey.startsWith('__')) {
+      toast.error('Invalid field name', 'This field name is not allowed for security reasons');
       return;
     }
 
@@ -85,7 +96,15 @@ export function CustomFieldsSection({
     }
   };
 
-  const hasChanges = JSON.stringify(fields) !== JSON.stringify(customFields);
+  // Check for changes using proper comparison
+  const hasChanges = (() => {
+    const fieldKeys = Object.keys(fields);
+    const customFieldKeys = Object.keys(customFields || {});
+
+    if (fieldKeys.length !== customFieldKeys.length) return true;
+
+    return fieldKeys.some((key) => fields[key] !== customFields[key]);
+  })();
 
   return (
     <div className="space-y-4">

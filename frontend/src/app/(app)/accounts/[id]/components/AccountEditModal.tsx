@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -41,6 +41,29 @@ export function AccountEditModal({
     linkedinUrl: account.linkedinUrl || '',
     twitterUrl: account.twitterUrl || '',
   });
+
+  // Reset form when modal opens or account changes
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        name: account.name || '',
+        domain: account.domain || '',
+        website: account.website || '',
+        industry: account.industry || '',
+        employeeCount: account.employeeCount?.toString() || '',
+        annualRevenue: account.annualRevenue ? (account.annualRevenue / 100).toString() : '',
+        status: account.status || 'prospect',
+        address: account.address || '',
+        city: account.city || '',
+        state: account.state || '',
+        country: account.country || '',
+        postalCode: account.postalCode || '',
+        linkedinUrl: account.linkedinUrl || '',
+        twitterUrl: account.twitterUrl || '',
+      });
+      setActiveTab('basic');
+    }
+  }, [open, account]);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
