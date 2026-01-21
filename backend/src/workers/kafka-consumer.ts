@@ -11,7 +11,7 @@
  * Environment:
  *   KAFKA_ENABLED=true
  *   KAFKA_BROKERS=localhost:9092
- *   KAFKA_GROUP_ID=salesos-event-handlers (optional)
+ *   KAFKA_GROUP_ID=bevyly-event-handlers (optional)
  */
 
 // Initialize OpenTelemetry first
@@ -38,7 +38,7 @@ async function main() {
     process.exit(1);
   }
 
-  const groupId = process.env.KAFKA_GROUP_ID || 'salesos-event-handlers';
+  const groupId = process.env.KAFKA_GROUP_ID || 'bevyly-event-handlers';
 
   try {
     await startKafkaConsumer({ groupId });

@@ -1,6 +1,6 @@
-# SalesOS Backend - Microservices Architecture
+# Bevyly Backend - Microservices Architecture
 
-This is the backend for SalesOS, implemented as a microservices architecture with event-driven communication.
+This is the backend for Bevyly, implemented as a microservices architecture with event-driven communication.
 
 ## Architecture Overview
 

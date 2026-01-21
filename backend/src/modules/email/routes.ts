@@ -243,7 +243,7 @@ router.get('/track/click/:trackingId', async (req, res) => {
       res.redirect(302, result.originalUrl);
     } else {
       // Fallback if URL not found
-      res.redirect(302, 'https://salesos.dev');
+      res.redirect(302, 'https://bevyly.app');
     }
   } catch {
     // Fallback on error
