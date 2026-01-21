@@ -24,7 +24,7 @@ import { Badge } from '@/components/ui/Badge';
 import {
   EnvelopeIcon,
   PencilSquareIcon,
-  EyeOpenIcon,
+  EyeIcon,
   CursorArrowRaysIcon,
 } from '@heroicons/react/24/outline';
 import type { Email } from '@/lib/api/server';

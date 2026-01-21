@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -247,9 +248,11 @@ export function BriefingContent({
                         <p className="text-sm text-text-muted mt-2">{rec.rationale}</p>
                         <div className="flex items-center gap-2 mt-4">
                           {rec.ctaRoute && (
-                            <Button size="sm" href={rec.ctaRoute}>
-                              {rec.ctaLabel || 'View'}
-                            </Button>
+                            <Link href={rec.ctaRoute}>
+                              <Button size="sm">
+                                {rec.ctaLabel || 'View'}
+                              </Button>
+                            </Link>
                           )}
                           <Button
                             size="sm"
@@ -258,8 +261,7 @@ export function BriefingContent({
                           >
                             Dismiss
                           </Button>
-                        </div>
-                      </div>
+                        </div>                      </div>
                     </div>
                   </Card>
                 );
