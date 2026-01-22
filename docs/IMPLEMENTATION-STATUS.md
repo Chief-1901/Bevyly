@@ -11,7 +11,7 @@
 | Phase | Status | Progress |
 |-------|--------|----------|
 | Phase 1: Foundation | Complete | 100% |
-| Phase 1.5: Frontend Enhancements | In Progress | 60% |
+| Phase 1.5: Frontend Enhancements | Complete | 100% |
 | Phase 2: Agent Infrastructure | Not Started | 0% |
 | Phase 3: Core Agents | Not Started | 0% |
 | Phase 4: Outreach Agents | Not Started | 0% |
@@ -19,7 +19,7 @@
 
 ---
 
-## Phase 1.5: Frontend Enhancements (Current)
+## Phase 1.5: Frontend Enhancements (Complete)
 
 ### Completed (January 21-22, 2026)
 
@@ -30,26 +30,17 @@
 | Accounts Detail Enhancements | ✅ Complete | Health score, edit modal, custom fields |
 | SalesOS → Bevyly Rebranding | ✅ 85% | Some backend references remain |
 | Database Migrations | ✅ Complete | All migrations applied |
-| Playwright E2E Tests | ✅ Added | accounts-detail, opportunities-kanban, settings |
+| Playwright E2E Tests | ✅ Added | accounts-detail, opportunities-kanban, settings, briefing-enhancements |
 | **Settings Module** | ✅ Complete | All 5 pages implemented |
 | - Profile Page | ✅ Complete | User profile editing, password change |
 | - Team Page | ✅ Complete | Team member management, roles, invites |
 | - Integrations Page | ✅ Complete | OAuth/API key connection cards |
 | - Notifications Page | ✅ Complete | Preference toggles by category |
 | - Appearance Page | ✅ Complete | Theme, density, format settings |
-
-### In Progress
-
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Briefing Enhancements | ⏳ Pending | Agent activity feed, pipeline snapshot |
-
-### Remaining Priority 1 Tasks
-
-| Task | Complexity | Status |
-|------|------------|--------|
-| Briefing - Agent activity feed | Medium | Not Started |
-| Briefing - Pipeline snapshot widget | Medium | Not Started |
+| **Briefing Enhancements** | ✅ Complete | All 3 features implemented |
+| - Pipeline Snapshot Widget | ✅ Complete | Interactive stage cards with keyboard nav |
+| - Signal Detail Modal | ✅ Complete | Full signal context, dismiss functionality |
+| - Agent Activity Feed | ✅ Complete | Placeholder for Phase 2 agents
 
 ---
 

@@ -21,7 +21,10 @@ import {
   SparklesIcon,
   CpuChipIcon,
 } from '@heroicons/react/24/outline';
-import type { Recommendation, Signal } from '@/lib/api/server';
+import type { Recommendation, Signal, PipelineSummary } from '@/lib/api/server';
+import { PipelineSnapshot } from './components/PipelineSnapshot';
+import { SignalDetailModal } from './components/SignalDetailModal';
+import { AgentActivityFeed } from './components/AgentActivityFeed';
 
 interface BriefingContentProps {
   recommendations: Recommendation[];
@@ -32,6 +35,7 @@ interface BriefingContentProps {
     mediumPriority: number;
     lowPriority: number;
   };
+  pipelineStages: PipelineSummary[];
   error?: string;
 }
 
@@ -39,12 +43,25 @@ export function BriefingContent({
   recommendations,
   signals,
   summary,
+  pipelineStages,
   error,
 }: BriefingContentProps) {
   const router = useRouter();
   const { addToast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [useAIOrdering, setUseAIOrdering] = useState(true);
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
+  const [showSignalModal, setShowSignalModal] = useState(false);
+
+  const handleViewSignal = (signalId: string) => {
+    setSelectedSignalId(signalId);
+    setShowSignalModal(true);
+  };
+
+  const handleSignalDismissed = () => {
+    // Refresh the page to update signals list
+    router.refresh();
+  };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -184,6 +201,12 @@ export function BriefingContent({
         </Card>
       </div>
 
+      {/* Pipeline Snapshot */}
+      <PipelineSnapshot stages={pipelineStages} />
+
+      {/* Agent Activity Feed */}
+      <AgentActivityFeed />
+
       {/* Action Cards */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -194,6 +217,8 @@ export function BriefingContent({
           </div>
           <button
             onClick={() => setUseAIOrdering(!useAIOrdering)}
+            aria-pressed={useAIOrdering}
+            aria-label={`AI Ordering ${useAIOrdering ? 'enabled' : 'disabled'}`}
             className={`
               flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm
               transition-colors border
@@ -290,12 +315,14 @@ export function BriefingContent({
           <Card padding="none">
             <div className="divide-y divide-border">
               {signals.slice(0, 5).map((signal) => (
-                <div key={signal.id} className="flex items-center gap-4 p-4">
+                <div key={signal.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
                   <div
                     className={`h-2 w-2 rounded-full ${
                       signal.severity === 'high' ? 'bg-danger-500' :
                       signal.severity === 'medium' ? 'bg-warning-500' : 'bg-info-500'
                     }`}
+                    role="img"
+                    aria-label={`${signal.severity} severity`}
                   />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-text-primary truncate">{signal.title}</p>
@@ -312,6 +339,13 @@ export function BriefingContent({
                   >
                     {signal.severity}
                   </Badge>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleViewSignal(signal.id)}
+                  >
+                    View Details
+                  </Button>
                 </div>
               ))}
             </div>
@@ -325,6 +359,14 @@ export function BriefingContent({
           </Card>
         </div>
       )}
+
+      {/* Signal Detail Modal */}
+      <SignalDetailModal
+        signalId={selectedSignalId}
+        open={showSignalModal}
+        onClose={() => setShowSignalModal(false)}
+        onDismissed={handleSignalDismissed}
+      />
     </div>
   );
 }
