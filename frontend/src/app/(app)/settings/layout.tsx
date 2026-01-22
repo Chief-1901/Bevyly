@@ -1,8 +1,20 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { KeyIcon, UserIcon, CogIcon } from '@heroicons/react/24/outline';
+import {
+  KeyIcon,
+  UserIcon,
+  UsersIcon,
+  LinkIcon,
+  BellIcon,
+  SwatchIcon,
+} from '@heroicons/react/24/outline';
 
 const settingsNav = [
+  { name: 'Profile', href: '/settings/profile', icon: UserIcon },
+  { name: 'Team', href: '/settings/team', icon: UsersIcon },
+  { name: 'Integrations', href: '/settings/integrations', icon: LinkIcon },
+  { name: 'Notifications', href: '/settings/notifications', icon: BellIcon },
+  { name: 'Appearance', href: '/settings/appearance', icon: SwatchIcon },
   { name: 'API Keys', href: '/settings/api-keys', icon: KeyIcon },
 ];
 
