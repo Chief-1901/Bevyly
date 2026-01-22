@@ -27,6 +27,12 @@ interface ToastContextValue {
   toasts: Toast[];
   addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;
+  toast: {
+    success: (title: string, message?: string) => void;
+    error: (title: string, message?: string) => void;
+    warning: (title: string, message?: string) => void;
+    info: (title: string, message?: string) => void;
+  };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -60,8 +66,23 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const toast = {
+    success: useCallback((title: string, message?: string) => {
+      addToast({ type: 'success', title, message });
+    }, [addToast]),
+    error: useCallback((title: string, message?: string) => {
+      addToast({ type: 'error', title, message });
+    }, [addToast]),
+    warning: useCallback((title: string, message?: string) => {
+      addToast({ type: 'warning', title, message });
+    }, [addToast]),
+    info: useCallback((title: string, message?: string) => {
+      addToast({ type: 'info', title, message });
+    }, [addToast]),
+  };
+
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
+    <ToastContext.Provider value={{ toasts, addToast, removeToast, toast }}>
       {children}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </ToastContext.Provider>

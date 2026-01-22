@@ -127,7 +127,7 @@ const server = app.listen(config.port, config.host, () => {
       port: config.port,
       env: config.nodeEnv,
     },
-    `🚀 SalesOS backend listening on ${config.host}:${config.port}`
+    `🚀 Bevyly backend listening on ${config.host}:${config.port}`
   );
 
   // Start event dispatcher in background

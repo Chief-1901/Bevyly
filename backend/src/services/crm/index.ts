@@ -1,7 +1,7 @@
 /**
- * SalesOS CRM Service
- * 
- * Handles CRM entities and Intent-Driven Sales OS features:
+ * Bevyly CRM Service
+ *
+ * Handles CRM entities and Intent-Driven features:
  * - Accounts, Contacts, Opportunities (core CRM)
  * - Leads (pre-conversion prospects)
  * - Intent (signals, recommendations, briefing)

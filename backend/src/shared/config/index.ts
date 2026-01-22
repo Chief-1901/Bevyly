@@ -44,7 +44,7 @@ const configSchema = z.object({
     .string()
     .transform((v) => v === 'true')
     .default('true'),
-  otelServiceName: z.string().default('salesos-backend'),
+  otelServiceName: z.string().default('bevyly-backend'),
   otelExporterEndpoint: z.string().optional(),
 
   // Email
@@ -64,7 +64,7 @@ const configSchema = z.object({
 
   // Kafka
   kafkaBrokers: z.string().default('localhost:19092').transform((s) => s.split(',')),
-  kafkaClientId: z.string().default('salesos-backend'),
+  kafkaClientId: z.string().default('bevyly-backend'),
   kafkaEnabled: z
     .string()
     .transform((v) => v === 'true')

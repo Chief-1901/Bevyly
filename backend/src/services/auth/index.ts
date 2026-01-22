@@ -1,5 +1,5 @@
 /**
- * SalesOS Auth Service
+ * Bevyly Auth Service
  * 
  * Handles authentication, authorization, and API key management.
  * - User signup/login

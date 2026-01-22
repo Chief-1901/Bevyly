@@ -19,9 +19,9 @@ import {
 // Configuration
 const otelEnabled = process.env.OTEL_ENABLED === 'true';
 // Use SERVICE_NAME (microservice) or OTEL_SERVICE_NAME (legacy) or default
-const serviceName = process.env.SERVICE_NAME 
-  ? `salesos-${process.env.SERVICE_NAME}` 
-  : (process.env.OTEL_SERVICE_NAME || 'salesos-backend');
+const serviceName = process.env.SERVICE_NAME
+  ? `bevyly-${process.env.SERVICE_NAME}`
+  : (process.env.OTEL_SERVICE_NAME || 'bevyly-backend');
 const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
 const environment = process.env.NODE_ENV || 'development';
 
@@ -33,7 +33,7 @@ if (otelEnabled && endpoint) {
     [ATTR_SERVICE_NAME]: serviceName,
     [ATTR_SERVICE_VERSION]: process.env.npm_package_version || '0.1.0',
     'deployment.environment.name': environment,
-    'service.namespace': 'salesos',
+    'service.namespace': 'bevyly',
     'service.instance.id': process.env.HOSTNAME || process.pid.toString(),
   });
 

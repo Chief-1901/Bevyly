@@ -37,7 +37,7 @@ export class AppError extends Error {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Specific error types (matching docs/SalesOS-API-Integration.md)
+// Specific error types
 // ─────────────────────────────────────────────────────────────
 
 export class BadRequestError extends AppError {

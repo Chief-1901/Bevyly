@@ -27,7 +27,7 @@ async function seed() {
       id: customerId,
       name: 'Demo Company',
       slug: 'demo',
-      domain: 'demo.salesos.dev',
+      domain: 'demo.bevyly.app',
       plan: 'pro',
       status: 'active',
       settings: {
@@ -50,7 +50,7 @@ async function seed() {
       {
         id: adminId,
         customerId,
-        email: 'admin@demo.salesos.dev',
+        email: 'admin@demo.bevyly.app',
         passwordHash,
         firstName: 'Admin',
         lastName: 'User',
@@ -60,7 +60,7 @@ async function seed() {
       {
         id: repId,
         customerId,
-        email: 'rep@demo.salesos.dev',
+        email: 'rep@demo.bevyly.app',
         passwordHash,
         firstName: 'Sales',
         lastName: 'Rep',
@@ -219,8 +219,8 @@ async function seed() {
 
     console.log('\n🎉 Seeding completed successfully!');
     console.log('\nDemo users created:');
-    console.log('  - admin@demo.salesos.dev (admin role)');
-    console.log('  - rep@demo.salesos.dev (sales_rep role)');
+    console.log('  - admin@demo.bevyly.app (admin role)');
+    console.log('  - rep@demo.bevyly.app (sales_rep role)');
     console.log('\n📝 See docs/GETTING-STARTED.md for login credentials.');
 
   } catch (error) {

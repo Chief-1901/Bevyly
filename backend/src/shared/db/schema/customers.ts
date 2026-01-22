@@ -2,7 +2,7 @@ import { pgTable, varchar, text, timestamp, boolean, jsonb } from 'drizzle-orm/p
 import { relations } from 'drizzle-orm';
 
 /**
- * Customers table - represents a tenant/organization using SalesOS
+ * Customers table - represents a tenant/organization using Bevyly
  * This is the top-level entity for multi-tenancy
  */
 export const customers = pgTable('customers', {

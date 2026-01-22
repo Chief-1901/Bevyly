@@ -1,6 +1,6 @@
 /**
- * SalesOS API Gateway
- * 
+ * Bevyly API Gateway
+ *
  * Single entrypoint for all API requests. Handles:
  * - Authentication (JWT verification)
  * - Tenant context extraction and propagation
@@ -300,7 +300,7 @@ const server = app.listen(GATEWAY_PORT, config.host, () => {
       env: config.nodeEnv,
       services: SERVICE_URLS,
     },
-    `🚀 SalesOS API Gateway listening on ${config.host}:${GATEWAY_PORT}`
+    `🚀 Bevyly API Gateway listening on ${config.host}:${GATEWAY_PORT}`
   );
 });
 

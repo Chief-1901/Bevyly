@@ -1,5 +1,5 @@
 /**
- * SalesOS Email Service
+ * Bevyly Email Service
  * 
  * Handles email sending, tracking, and management.
  * - Send emails via providers (Gmail, Outlook, mock)
