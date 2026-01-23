@@ -18,3 +18,6 @@ export * from './email-providers.js';
 // Intent-Driven Sales OS schemas
 export * from './leads.js';
 export * from './signals.js';
+
+// Agent Infrastructure schemas
+export * from './agents.js';
