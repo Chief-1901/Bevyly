@@ -22,6 +22,17 @@ export type { LeadsReadyCardProps } from './LeadsReadyCard';
 export { FollowUpCard } from './FollowUpCard';
 export type { FollowUpCardProps } from './FollowUpCard';
 
+export { LeadsDiscoveredCard } from './LeadsDiscoveredCard';
+export type { LeadsDiscoveredCardProps } from './LeadsDiscoveredCard';
+
+export { EnrichmentPendingCard } from './EnrichmentPendingCard';
+export type { EnrichmentPendingCardProps } from './EnrichmentPendingCard';
+
+export { ApprovalQueueCard } from './ApprovalQueueCard';
+export type { ApprovalQueueCardProps } from './ApprovalQueueCard';
+
+export { UniversalCommand } from './UniversalCommand';
+
 // Registry
 export {
   CardRegistry,
