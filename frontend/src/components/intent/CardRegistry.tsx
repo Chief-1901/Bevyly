@@ -89,6 +89,45 @@ export const CardRegistry: CardRegistryConfig = {
     }),
     description: 'Shows a contact needing follow-up after a meeting',
   },
+
+  LeadsDiscoveredCard: {
+    component: LeadsDiscoveredCard,
+    propsSchema: z.object({
+      runId: z.string(),
+      count: z.number(),
+      avgFitScore: z.number().optional(),
+      highFitCount: z.number(),
+      mediumFitCount: z.number(),
+      lowFitCount: z.number(),
+      estimatedCredits: z.number().optional(),
+      priority: prioritySchema.optional(),
+    }),
+    description: 'Shows discovered leads pending approval for enrichment',
+  },
+
+  EnrichmentPendingCard: {
+    component: EnrichmentPendingCard,
+    propsSchema: z.object({
+      pendingCount: z.number(),
+      approvedCount: z.number(),
+      estimatedCredits: z.number(),
+      priority: prioritySchema.optional(),
+    }),
+    description: 'Shows leads ready for enrichment via Apollo.io',
+  },
+
+  ApprovalQueueCard: {
+    component: ApprovalQueueCard,
+    propsSchema: z.object({
+      totalPending: z.number(),
+      highFitPending: z.number(),
+      mediumFitPending: z.number(),
+      lowFitPending: z.number(),
+      estimatedTotalCredits: z.number(),
+      priority: prioritySchema.optional(),
+    }),
+    description: 'Shows approval queue summary for discovered leads',
+  },
 } as const;
 
 // Type helpers
@@ -104,6 +143,7 @@ export const ALLOWED_ROUTES = [
   '/sequences/:id',
   '/leads',
   '/leads/:id',
+  '/leads/approval',
   '/contacts/:id',
   '/accounts/:id',
   '/sequences/new',

@@ -76,6 +76,24 @@ const configSchema = z.object({
     .string()
     .transform((v) => v === 'true')
     .default('false'),
+
+  // Agent Infrastructure
+  crawl4aiUrl: z.string().default('http://localhost:8001'),
+  agentDiscoveryMaxResults: z.coerce.number().default(100),
+  agentEnrichmentMaxCreditsPerRun: z.coerce.number().default(50),
+
+  // OpenAI (for LLM features)
+  openaiApiKey: z.string().optional(),
+  openaiModel: z.string().default('gpt-4-turbo-preview'),
+
+  // Apify (for Apollo.io enrichment)
+  apifyApiKey: z.string().optional(),
+  apifyApolloActorId: z.string().default('apify/apollo-io-scraper'),
+
+  // Google APIs
+  googleSearchApiKey: z.string().optional(),
+  googleSearchCx: z.string().optional(),
+  googleMapsApiKey: z.string().optional(),
 });
 
 function loadConfig() {
@@ -125,6 +143,20 @@ function loadConfig() {
 
     logLevel: process.env.LOG_LEVEL,
     logPretty: process.env.LOG_PRETTY,
+
+    crawl4aiUrl: process.env.CRAWL4AI_URL,
+    agentDiscoveryMaxResults: process.env.AGENT_DISCOVERY_MAX_RESULTS,
+    agentEnrichmentMaxCreditsPerRun: process.env.AGENT_ENRICHMENT_MAX_CREDITS_PER_RUN,
+
+    openaiApiKey: process.env.OPENAI_API_KEY,
+    openaiModel: process.env.OPENAI_MODEL,
+
+    apifyApiKey: process.env.APIFY_API_KEY,
+    apifyApolloActorId: process.env.APIFY_APOLLO_ACTOR_ID,
+
+    googleSearchApiKey: process.env.GOOGLE_SEARCH_API_KEY,
+    googleSearchCx: process.env.GOOGLE_SEARCH_CX,
+    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
   };
 
   const result = configSchema.safeParse(raw);

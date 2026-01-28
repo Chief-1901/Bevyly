@@ -24,6 +24,14 @@ export type SignalId = Brand<string, 'SignalId'>;
 export type PatternId = Brand<string, 'PatternId'>;
 export type RecommendationId = Brand<string, 'RecommendationId'>;
 
+// Agent Infrastructure ID types
+export type AgentConfigId = Brand<string, 'AgentConfigId'>;
+export type AgentRunId = Brand<string, 'AgentRunId'>;
+export type ApprovalQueueItemId = Brand<string, 'ApprovalQueueItemId'>;
+export type IntegrationCredentialId = Brand<string, 'IntegrationCredentialId'>;
+export type CreditUsageId = Brand<string, 'CreditUsageId'>;
+export type UserSettingsId = Brand<string, 'UserSettingsId'>;
+
 /**
  * Tenant context - attached to every request
  */

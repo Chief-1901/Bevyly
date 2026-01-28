@@ -12,6 +12,7 @@ import {
   CardType,
   ALLOWED_CARD_TYPES,
   BriefingStream,
+  UniversalCommand,
 } from '@/components/intent';
 import {
   ArrowPathIcon,
@@ -151,6 +152,9 @@ export function BriefingContent({
           Refresh
         </Button>
       </div>
+
+      {/* Universal Command Interface */}
+      <UniversalCommand />
 
       {/* Error State */}
       {error && (
