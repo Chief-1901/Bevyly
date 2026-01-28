@@ -85,6 +85,15 @@ const configSchema = z.object({
   // OpenAI (for LLM features)
   openaiApiKey: z.string().optional(),
   openaiModel: z.string().default('gpt-4-turbo-preview'),
+
+  // Apify (for Apollo.io enrichment)
+  apifyApiKey: z.string().optional(),
+  apifyApolloActorId: z.string().default('apify/apollo-io-scraper'),
+
+  // Google APIs
+  googleSearchApiKey: z.string().optional(),
+  googleSearchCx: z.string().optional(),
+  googleMapsApiKey: z.string().optional(),
 });
 
 function loadConfig() {
@@ -141,6 +150,13 @@ function loadConfig() {
 
     openaiApiKey: process.env.OPENAI_API_KEY,
     openaiModel: process.env.OPENAI_MODEL,
+
+    apifyApiKey: process.env.APIFY_API_KEY,
+    apifyApolloActorId: process.env.APIFY_APOLLO_ACTOR_ID,
+
+    googleSearchApiKey: process.env.GOOGLE_SEARCH_API_KEY,
+    googleSearchCx: process.env.GOOGLE_SEARCH_CX,
+    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
   };
 
   const result = configSchema.safeParse(raw);
