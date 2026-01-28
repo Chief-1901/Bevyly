@@ -1,35 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Pagination } from '@/components/ui/Pagination';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useToast } from '@/components/ui/Toast';
 import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  TableCaption,
-} from '@/components/ui/Table';
-import { Badge } from '@/components/ui/Badge';
-import { Menu, MenuItem } from '@/components/ui/Menu';
-import {
   CurrencyDollarIcon,
   PlusIcon,
-  EyeIcon,
-  PencilIcon,
-  TrashIcon,
+  Bars3Icon,
+  Squares2X2Icon,
 } from '@heroicons/react/24/outline';
 import type { Opportunity, Account } from '@/lib/api/server';
+import { TableView } from './components/TableView';
+import { KanbanBoard } from './components/KanbanBoard';
 
 interface OpportunitiesContentProps {
   opportunities: Opportunity[];
@@ -44,6 +31,7 @@ interface OpportunitiesContentProps {
 }
 
 type Stage = '' | 'prospecting' | 'qualification' | 'proposal' | 'negotiation' | 'closed_won' | 'closed_lost';
+type ViewMode = 'table' | 'board';
 
 const stageOptions = [
   { value: '' as Stage, label: 'All' },
@@ -54,37 +42,6 @@ const stageOptions = [
   { value: 'closed_won' as Stage, label: 'Won' },
 ];
 
-const stageBadgeVariant = (stage: string) => {
-  switch (stage) {
-    case 'closed_won':
-      return 'success';
-    case 'closed_lost':
-      return 'danger';
-    case 'negotiation':
-    case 'proposal':
-      return 'warning';
-    default:
-      return 'info';
-  }
-};
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-  }).format(amount / 100);
-}
-
-function formatDate(dateString?: string): string {
-  if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
-
 export function OpportunitiesContent({
   opportunities,
   accounts,
@@ -92,8 +49,9 @@ export function OpportunitiesContent({
   currentStage,
 }: OpportunitiesContentProps) {
   const router = useRouter();
-  const { addToast } = useToast();
+  const { toast } = useToast();
   const [stage, setStage] = useState<Stage>(currentStage as Stage);
+  const [view, setView] = useState<ViewMode>('table');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createForm, setCreateForm] = useState({
@@ -103,7 +61,26 @@ export function OpportunitiesContent({
     stage: 'prospecting',
   });
 
-  const accountMap = new Map(accounts.map((a) => [a.id, a]));
+  // Load view preference from localStorage
+  useEffect(() => {
+    try {
+      const savedView = localStorage.getItem('opportunities_view');
+      if (savedView === 'table' || savedView === 'board') {
+        setView(savedView);
+      }
+    } catch (error) {
+      console.warn('Failed to access localStorage:', error);
+    }
+  }, []);
+
+  // Save view preference to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('opportunities_view', view);
+    } catch (error) {
+      console.warn('Failed to save to localStorage:', error);
+    }
+  }, [view]);
 
   const handleStageChange = (newStage: Stage) => {
     setStage(newStage);
@@ -136,28 +113,16 @@ export function OpportunitiesContent({
       const data = await response.json();
 
       if (response.ok && data.success) {
-        addToast({
-          type: 'success',
-          title: 'Opportunity created',
-          message: `${createForm.name} has been added.`,
-        });
+        toast.success('Opportunity created', `${createForm.name} has been added.`);
         setShowCreateModal(false);
         setCreateForm({ name: '', accountId: '', amount: '', stage: 'prospecting' });
         router.refresh();
       } else {
-        addToast({
-          type: 'error',
-          title: 'Failed to create opportunity',
-          message: data.error?.message || 'An unexpected error occurred',
-        });
+        toast.error('Failed to create opportunity', data.error?.message || 'An unexpected error occurred');
       }
     } catch (error) {
       console.error('Failed to create opportunity:', error);
-      addToast({
-        type: 'error',
-        title: 'Failed to create opportunity',
-        message: 'Could not connect to the server. Please try again.',
-      });
+      toast.error('Failed to create opportunity', 'Could not connect to the server. Please try again.');
     } finally {
       setIsCreating(false);
     }
@@ -171,27 +136,33 @@ export function OpportunitiesContent({
       const data = await response.json();
 
       if (response.ok && data.success) {
-        addToast({
-          type: 'success',
-          title: 'Opportunity deleted',
-          message: 'The opportunity has been removed.',
-        });
+        toast.success('Opportunity deleted', 'The opportunity has been removed.');
         router.refresh();
       } else {
-        addToast({
-          type: 'error',
-          title: 'Failed to delete opportunity',
-          message: data.error?.message || 'An unexpected error occurred',
-        });
+        toast.error('Failed to delete opportunity', data.error?.message || 'An unexpected error occurred');
       }
     } catch (error) {
       console.error('Failed to delete opportunity:', error);
-      addToast({
-        type: 'error',
-        title: 'Failed to delete opportunity',
-        message: 'Could not connect to the server. Please try again.',
-      });
+      toast.error('Failed to delete opportunity', 'Could not connect to the server. Please try again.');
     }
+  };
+
+  const handleStageUpdate = async (oppId: string, newStage: string) => {
+    const response = await fetch(`/api/v1/opportunities/${oppId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage: newStage }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      const error = data.error?.message || 'Failed to update stage';
+      toast.error('Update failed', error);
+      throw new Error(error);
+    }
+
+    toast.success('Stage updated', `Moved to ${newStage.replace('_', ' ')}`);
   };
 
   return (
@@ -202,127 +173,80 @@ export function OpportunitiesContent({
           <h1 className="text-2xl font-bold text-text-primary">Opportunities</h1>
           <p className="text-sm text-text-muted mt-1">Manage your sales pipeline</p>
         </div>
-        <Button
-          leftIcon={<PlusIcon className="h-4 w-4" />}
-          onClick={() => setShowCreateModal(true)}
-        >
-          Add Opportunity
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* View Toggle */}
+          <div className="flex items-center gap-1 p-1 bg-surface-secondary rounded-lg">
+            <Button
+              variant={view === 'table' ? 'primary' : 'ghost'}
+              size="sm"
+              onClick={() => setView('table')}
+              aria-label="Table view"
+            >
+              <Bars3Icon className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={view === 'board' ? 'primary' : 'ghost'}
+              size="sm"
+              onClick={() => setView('board')}
+              aria-label="Board view"
+            >
+              <Squares2X2Icon className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button
+            leftIcon={<PlusIcon className="h-4 w-4" />}
+            onClick={() => setShowCreateModal(true)}
+          >
+            Add Opportunity
+          </Button>
+        </div>
       </div>
 
-      {/* Stage Filter */}
-      <div className="overflow-x-auto">
-        <SegmentedControl
-          options={stageOptions}
-          value={stage}
-          onChange={handleStageChange}
-          size="md"
-        />
-      </div>
-
-      {/* Table */}
-      <Card padding="none">
-        {opportunities.length === 0 ? (
-          <EmptyState
-            icon={<CurrencyDollarIcon className="h-12 w-12" />}
-            title="No opportunities yet"
-            description="Get started by adding your first opportunity"
-            action={
-              <Button onClick={() => setShowCreateModal(true)}>Add Opportunity</Button>
-            }
+      {/* Stage Filter - Only show for table view */}
+      {view === 'table' && (
+        <div className="overflow-x-auto">
+          <SegmentedControl
+            options={stageOptions}
+            value={stage}
+            onChange={handleStageChange}
+            size="md"
           />
-        ) : (
-          <>
-            <Table>
-              <TableCaption>List of opportunities</TableCaption>
-              <TableHeader>
-                <TableRow hover={false}>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="hidden sm:table-cell">Account</TableHead>
-                  <TableHead>Stage</TableHead>
-                  <TableHead className="hidden md:table-cell">Amount</TableHead>
-                  <TableHead className="hidden lg:table-cell">Close Date</TableHead>
-                  <TableHead className="w-12">
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {opportunities.map((opp) => {
-                  const account = accountMap.get(opp.accountId);
-                  return (
-                    <TableRow key={opp.id}>
-                      <TableCell>
-                        <Link
-                          href={`/opportunities/${opp.id}`}
-                          className="font-medium hover:text-primary-700 dark:hover:text-primary-500"
-                        >
-                          {opp.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell" muted>
-                        {account ? (
-                          <Link
-                            href={`/accounts/${account.id}`}
-                            className="hover:text-primary-700 dark:hover:text-primary-500"
-                          >
-                            {account.name}
-                          </Link>
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={stageBadgeVariant(opp.stage)}>
-                          {opp.stage.replace('_', ' ')}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {opp.amount ? formatCurrency(opp.amount) : '-'}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell" muted>
-                        {formatDate(opp.closeDate)}
-                      </TableCell>
-                      <TableCell>
-                        <Menu align="right">
-                          <MenuItem
-                            icon={<EyeIcon className="h-4 w-4" />}
-                            onClick={() => router.push(`/opportunities/${opp.id}`)}
-                          >
-                            View
-                          </MenuItem>
-                          <MenuItem
-                            icon={<PencilIcon className="h-4 w-4" />}
-                            onClick={() => router.push(`/opportunities/${opp.id}/edit`)}
-                          >
-                            Edit
-                          </MenuItem>
-                          <MenuItem
-                            icon={<TrashIcon className="h-4 w-4" />}
-                            danger
-                            onClick={() => handleDelete(opp.id)}
-                          >
-                            Delete
-                          </MenuItem>
-                        </Menu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-            {pagination && (
-              <Pagination
-                page={pagination.page}
-                totalPages={pagination.totalPages}
-                total={pagination.total}
-                limit={pagination.limit}
-                onPageChange={handlePageChange}
-              />
-            )}
-          </>
-        )}
-      </Card>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {opportunities.length === 0 ? (
+        <EmptyState
+          icon={<CurrencyDollarIcon className="h-12 w-12" />}
+          title="No opportunities yet"
+          description="Get started by adding your first opportunity"
+          action={
+            <Button onClick={() => setShowCreateModal(true)}>Add Opportunity</Button>
+          }
+        />
+      ) : (
+        <>
+          {/* Table View */}
+          {view === 'table' && (
+            <TableView
+              opportunities={opportunities}
+              accounts={accounts}
+              pagination={pagination}
+              onPageChange={handlePageChange}
+              onDelete={handleDelete}
+            />
+          )}
+
+          {/* Board View */}
+          {view === 'board' && (
+            <KanbanBoard
+              opportunities={opportunities}
+              accounts={accounts}
+              onStageChange={handleStageUpdate}
+            />
+          )}
+        </>
+      )}
 
       {/* Create Modal */}
       <Modal
@@ -385,4 +309,3 @@ export function OpportunitiesContent({
     </div>
   );
 }
-

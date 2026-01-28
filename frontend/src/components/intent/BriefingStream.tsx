@@ -20,7 +20,7 @@ const cardSelectionSchema = z.object({
   cards: z.array(
     z.object({
       cardType: z.string(),
-      props: z.record(z.any()),
+      props: z.record(z.string(), z.any()),
       reasoning: z.string(),
     })
   ),
@@ -143,7 +143,7 @@ function StreamedCards({
   data,
   isLoading,
 }: {
-  data: Partial<CardSelection> | undefined;
+  data: any; // AI SDK's PartialObject type
   isLoading: boolean;
 }) {
   if (!data?.cards || data.cards.length === 0) {
@@ -169,7 +169,7 @@ function StreamedCards({
           <span>{data.summary}</span>
         </div>
       )}
-      {data.cards.map((card, index) => {
+      {data.cards.map((card: any, index: number) => {
         const cardType = card.cardType as CardType;
         if (ALLOWED_CARD_TYPES.includes(cardType)) {
           return (

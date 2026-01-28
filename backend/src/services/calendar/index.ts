@@ -1,5 +1,5 @@
 /**
- * SalesOS Calendar Service
+ * Bevyly Calendar Service
  * 
  * Handles meeting scheduling and calendar management.
  * - Propose meetings

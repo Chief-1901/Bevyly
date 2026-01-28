@@ -219,7 +219,7 @@ export async function startKafkaConsumer(options: {
     return;
   }
 
-  const groupId = options.groupId || 'salesos-event-handlers';
+  const groupId = options.groupId || 'bevyly-event-handlers';
   const topics = options.topics || ALL_TOPICS;
 
   consumerLogger.info({ groupId, topics: topics.length }, 'Starting Kafka consumer');

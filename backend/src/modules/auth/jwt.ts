@@ -41,7 +41,7 @@ export async function generateAccessToken(
     .setSubject(userId)
     .setIssuedAt()
     .setExpirationTime(Math.floor((Date.now() + expiryMs) / 1000))
-    .setIssuer('salesos')
+    .setIssuer('bevyly')
     .sign(secretKey);
 }
 
@@ -62,7 +62,7 @@ export async function generateRefreshToken(
     .setSubject(userId)
     .setIssuedAt()
     .setExpirationTime(Math.floor((Date.now() + expiryMs) / 1000))
-    .setIssuer('salesos')
+    .setIssuer('bevyly')
     .sign(secretKey);
 }
 
@@ -92,7 +92,7 @@ export async function generateTokenPair(
  */
 export async function verifyAccessToken(token: string): Promise<JwtPayload> {
   const { payload } = await jose.jwtVerify(token, secretKey, {
-    issuer: 'salesos',
+    issuer: 'bevyly',
   });
 
   const jwtPayload = payload as unknown as JwtPayload & { sub: string };
@@ -115,7 +115,7 @@ export async function verifyAccessToken(token: string): Promise<JwtPayload> {
  */
 export async function verifyRefreshToken(token: string): Promise<{ sub: string; cid: string }> {
   const { payload } = await jose.jwtVerify(token, secretKey, {
-    issuer: 'salesos',
+    issuer: 'bevyly',
   });
 
   const jwtPayload = payload as unknown as { sub: string; cid: string; type: string };

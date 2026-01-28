@@ -220,13 +220,20 @@ export interface Account {
   industry?: string;
   employeeCount?: number;
   annualRevenue?: number;
+  address?: string;
   city?: string;
   state?: string;
   country?: string;
+  postalCode?: string;
   status: string;
   ownerId?: string;
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  customFields?: Record<string, unknown>;
+  externalIds?: Record<string, string>;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string;
 }
 
 export interface Contact {

@@ -2,7 +2,7 @@
 
 > Current build progress and next steps
 
-**Last Updated:** January 21, 2026
+**Last Updated:** January 22, 2026
 
 ---
 
@@ -11,10 +11,36 @@
 | Phase | Status | Progress |
 |-------|--------|----------|
 | Phase 1: Foundation | Complete | 100% |
+| Phase 1.5: Frontend Enhancements | Complete | 100% |
 | Phase 2: Agent Infrastructure | Not Started | 0% |
 | Phase 3: Core Agents | Not Started | 0% |
 | Phase 4: Outreach Agents | Not Started | 0% |
 | Phase 5: Polish & Scale | Not Started | 0% |
+
+---
+
+## Phase 1.5: Frontend Enhancements (Complete)
+
+### Completed (January 21-22, 2026)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Contacts Detail Page | ✅ Complete | Full detail view with tabs |
+| Opportunities Kanban Board | ✅ Complete | Drag-and-drop stage changes |
+| Accounts Detail Enhancements | ✅ Complete | Health score, edit modal, custom fields |
+| SalesOS → Bevyly Rebranding | ✅ 85% | Some backend references remain |
+| Database Migrations | ✅ Complete | All migrations applied |
+| Playwright E2E Tests | ✅ Added | accounts-detail, opportunities-kanban, settings, briefing-enhancements |
+| **Settings Module** | ✅ Complete | All 5 pages implemented |
+| - Profile Page | ✅ Complete | User profile editing, password change |
+| - Team Page | ✅ Complete | Team member management, roles, invites |
+| - Integrations Page | ✅ Complete | OAuth/API key connection cards |
+| - Notifications Page | ✅ Complete | Preference toggles by category |
+| - Appearance Page | ✅ Complete | Theme, density, format settings |
+| **Briefing Enhancements** | ✅ Complete | All 3 features implemented |
+| - Pipeline Snapshot Widget | ✅ Complete | Interactive stage cards with keyboard nav |
+| - Signal Detail Modal | ✅ Complete | Full signal context, dismiss functionality |
+| - Agent Activity Feed | ✅ Complete | Placeholder for Phase 2 agents
 
 ---
 
@@ -40,16 +66,17 @@
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| App Router Setup | Complete | Next.js 14 |
+| App Router Setup | Complete | Next.js 15 |
 | Authentication Pages | Complete | Login, signup |
 | Dashboard Shell | Complete | Header, sidebar, layout |
 | Briefing Page | Complete | Action cards, signals |
 | Leads Page | Complete | Table, filters, actions |
-| Accounts Page | Complete | Table, detail view |
-| Contacts Page | Complete | Table, detail view |
-| Opportunities Page | Complete | Table, stages |
-| Settings Page | Complete | Basic settings |
-| UI Components | Complete | Button, Input, Table, etc. |
+| Accounts Page | Complete | Table, detail view, health score, edit modal |
+| Contacts Page | Complete | Table, detail view with tabs |
+| Opportunities Page | Complete | Table + Kanban board with drag-and-drop |
+| Settings Page | Complete | All 6 pages: Profile, Team, Integrations, Notifications, Appearance, API Keys |
+| UI Components | Complete | 13+ components |
+| Playwright Tests | Added | E2E tests for key flows |
 
 ### Quality Metrics
 
@@ -331,23 +358,27 @@ cd frontend && npm run test:e2e
 
 ### Immediate (This Week)
 
-1. Set up OpenAI integration
-2. Set up Apollo.io integration
-3. Create agent orchestration framework
-4. Build approval queue backend
+1. ✅ ~~Contacts detail page~~ - DONE
+2. ✅ ~~Opportunities Kanban board~~ - DONE
+3. ✅ ~~Accounts detail enhancements~~ - DONE
+4. Complete Settings module (5 pages)
+5. Briefing page enhancements
 
 ### Short Term (This Month)
 
-1. Build Agent Console UI
-2. Build Approval Queue UI
-3. Implement Lead Source Agent
-4. Implement Enrichment Agent
+1. Email compose UI with rich text editor
+2. Email templates management
+3. Calendar grid view
+4. Sequences visual builder
+5. Build Agent Console UI
+6. Build Approval Queue UI
 
 ### Medium Term (Next 2 Months)
 
-1. Implement remaining core agents
-2. Gmail/Outlook integration
-3. Calendar integration
-4. Voice Agent (Bland.ai)
-5. Fresh rebrand
-6. Billing integration
+1. Set up OpenAI integration
+2. Set up Apollo.io integration
+3. Implement Lead Source Agent
+4. Implement Enrichment Agent
+5. Gmail/Outlook integration
+6. Voice Agent (Bland.ai)
+7. Billing integration (Stripe)

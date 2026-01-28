@@ -1,5 +1,5 @@
 /**
- * SalesOS Sequences Service
+ * Bevyly Sequences Service
  * 
  * Handles email sequences and enrollment management.
  * - Create and manage sequences

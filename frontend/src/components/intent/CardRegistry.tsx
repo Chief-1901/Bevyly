@@ -7,19 +7,33 @@
 
 import React from 'react';
 import { z } from 'zod';
-import { DealStalledCard } from './DealStalledCard';
-import { SequenceUnderperformingCard } from './SequenceUnderperformingCard';
-import { LeadsReadyCard } from './LeadsReadyCard';
-import { FollowUpCard } from './FollowUpCard';
-import { LeadsDiscoveredCard } from './LeadsDiscoveredCard';
-import { EnrichmentPendingCard } from './EnrichmentPendingCard';
-import { ApprovalQueueCard } from './ApprovalQueueCard';
+import { DealStalledCard, type DealStalledCardProps } from './DealStalledCard';
+import { SequenceUnderperformingCard, type SequenceUnderperformingCardProps } from './SequenceUnderperformingCard';
+import { LeadsReadyCard, type LeadsReadyCardProps } from './LeadsReadyCard';
+import { FollowUpCard, type FollowUpCardProps } from './FollowUpCard';
 
 // Priority schema
 const prioritySchema = z.enum(['high', 'medium', 'low']);
 
+// Type map linking card types to their prop interfaces
+type CardPropsMap = {
+  DealStalledCard: DealStalledCardProps;
+  SequenceUnderperformingCard: SequenceUnderperformingCardProps;
+  LeadsReadyCard: LeadsReadyCardProps;
+  FollowUpCard: FollowUpCardProps;
+};
+
+// Type-safe registry structure
+type CardRegistryConfig = {
+  [K in keyof CardPropsMap]: {
+    component: React.ComponentType<CardPropsMap[K]>;
+    propsSchema: z.ZodObject<any>;
+    description: string;
+  };
+};
+
 // Card configurations with Zod schemas for validation
-export const CardRegistry = {
+export const CardRegistry: CardRegistryConfig = {
   DealStalledCard: {
     component: DealStalledCard,
     propsSchema: z.object({
@@ -117,8 +131,8 @@ export const CardRegistry = {
 } as const;
 
 // Type helpers
-export type CardType = keyof typeof CardRegistry;
-export type CardConfig<T extends CardType> = typeof CardRegistry[T];
+export type CardType = keyof CardPropsMap;
+export type CardConfig<T extends CardType> = CardRegistryConfig[T];
 
 // Get list of allowed card types
 export const ALLOWED_CARD_TYPES = Object.keys(CardRegistry) as CardType[];
@@ -159,11 +173,11 @@ export function renderCard<T extends CardType>(
   }
 
   const config = CardRegistry[cardType];
-  
+
   try {
-    const validatedProps = config.propsSchema.parse(props);
-    const Component = config.component as React.ComponentType<typeof validatedProps>;
-    return <Component {...validatedProps} />;
+    const validatedProps = config.propsSchema.parse(props) as unknown as CardPropsMap[T];
+    // Use React.createElement to avoid JSX prop spreading type issues
+    return React.createElement(config.component, validatedProps);
   } catch (error) {
     console.error(`Invalid props for ${cardType}:`, error);
     return null;
@@ -175,9 +189,9 @@ export function renderCard<T extends CardType>(
  */
 export function createCardElement<T extends CardType>(
   cardType: T,
-  props: z.infer<typeof CardRegistry[T]['propsSchema']>
+  props: CardPropsMap[T]
 ): React.ReactElement {
   const config = CardRegistry[cardType];
-  const Component = config.component as React.ComponentType<typeof props>;
-  return <Component {...props} />;
+  // Use React.createElement to avoid JSX prop spreading type issues
+  return React.createElement(config.component, props);
 }

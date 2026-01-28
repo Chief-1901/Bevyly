@@ -1,5 +1,5 @@
 /**
- * SalesOS Activities Service
+ * Bevyly Activities Service
  * 
  * Handles activity tracking and timeline management.
  * - Log activities (notes, calls, etc.)

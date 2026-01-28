@@ -6,6 +6,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Bevyly is an intent-driven sales operating system built on the philosophy "Meaning over Data." Instead of dashboard-first design, it surfaces contextual next-best-actions that guide users toward outcomes. The app answers "What should I do next?" before "What are the numbers?"
 
+## Current Status (Updated: January 22, 2026)
+
+| Phase | Status | Progress |
+|-------|--------|----------|
+| Phase 1: Foundation | ✅ Complete | 100% |
+| Phase 1.5: Frontend Enhancements | 🔄 In Progress | 60% |
+| Phase 2: Agent Infrastructure | ⏳ Not Started | 0% |
+
+### Recently Completed (January 21-22, 2026)
+- ✅ Contacts detail page with tabs
+- ✅ Opportunities Kanban board with drag-and-drop
+- ✅ Accounts detail enhancements (health score, edit modal, custom fields)
+- ✅ TypeScript build fixes
+- ✅ Playwright E2E tests
+- ✅ SalesOS → Bevyly rebranding (85%)
+- ✅ **Settings Module Complete** (January 22, 2026)
+  - Profile page (user info, avatar, password change)
+  - Team page (member management, roles, invites)
+  - Integrations page (OAuth/API key connections)
+  - Notifications page (preference toggles)
+  - Appearance page (theme, density, formats)
+
+### Next Priority Tasks
+1. Briefing page enhancements (agent activity feed, pipeline snapshot)
+2. Email compose UI
+3. Calendar grid view
+4. Sequences visual builder
+5. Agent Console (Phase 2)
+
+See `docs/FRONTEND-IMPLEMENTATION-PLAN.md` for detailed implementation guide.
+
 ## Development Commands
 
 ### Backend (Node.js + Express)
@@ -224,3 +255,61 @@ All endpoints use `/api/v1/` prefix. Key routes:
 - `/api/v1/leads/*` - Lead management
 - `/api/v1/intent/*` - Briefing, signals, recommendations
 - `/api/v1/accounts/*`, `/api/v1/contacts/*`, `/api/v1/opportunities/*` - CRM
+
+## Database & Environment
+
+### Supabase Connection
+The project uses Supabase PostgreSQL. Due to SSL certificate chain issues, migrations require:
+
+```bash
+# Run migrations with TLS workaround
+NODE_TLS_REJECT_UNAUTHORIZED=0 npm run db:migrate
+```
+
+### Environment Variables
+Backend `.env` must include:
+```
+DATABASE_URL=postgresql://...
+DATABASE_SSL=true
+DATABASE_SSL_REJECT_UNAUTHORIZED=false
+JWT_SECRET=<min 32 chars>
+ENCRYPTION_KEY=<min 32 chars>
+```
+
+### Starting Development
+```bash
+# Backend (run with TLS workaround for Supabase)
+cd backend
+NODE_TLS_REJECT_UNAUTHORIZED=0 npm run dev:services
+
+# Frontend (separate terminal)
+cd frontend
+npm run dev
+```
+
+## Key Documentation Files
+
+| File | Purpose |
+|------|---------|
+| `docs/FRONTEND-IMPLEMENTATION-PLAN.md` | Detailed frontend task breakdown |
+| `docs/IMPLEMENTATION-STATUS.md` | Overall project progress |
+| `docs/PHASE1-AUDIT-REPORT.md` | Code quality audit results |
+| `docs/ARCHITECTURE.md` | System architecture overview |
+| `docs/API.md` | API endpoint documentation |
+| `docs/AGENTS.md` | AI agent specifications |
+
+## MCP Servers
+
+The project uses these MCP servers (configured in `.mcp.json`):
+- **GitHub**: Repository operations via `@modelcontextprotocol/server-github`
+- **Context7**: Documentation lookup via `@upstash/context7-mcp`
+- **Supabase**: Database operations via Supabase MCP (HTTP endpoint)
+
+## Git Workflow
+
+- `main` - Production-ready code
+- `develop` - Integration branch for features
+- `production` - Deployed production code
+- Feature branches: `claude/*` or `feature/*`
+
+Always work on `develop` branch for new features, then merge to `main` when ready.

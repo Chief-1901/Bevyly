@@ -65,30 +65,18 @@ export function UserDropdown({ user }: UserDropdownProps) {
       });
 
       if (response.ok) {
-        toast({
-          title: 'Signed out',
-          description: 'You have been signed out successfully.',
-          variant: 'success',
-        });
+        toast.success('Signed out', 'You have been signed out successfully.');
         // Redirect to login after a short delay
         setTimeout(() => {
           router.push('/login');
           router.refresh();
         }, 500);
       } else {
-        toast({
-          title: 'Sign out failed',
-          description: 'There was a problem signing you out. Please try again.',
-          variant: 'danger',
-        });
+        toast.error('Sign out failed', 'There was a problem signing you out. Please try again.');
       }
     } catch (error) {
       console.error('Sign out error:', error);
-      toast({
-        title: 'Sign out failed',
-        description: 'Could not connect to the server.',
-        variant: 'danger',
-      });
+      toast.error('Sign out failed', 'Could not connect to the server.');
     } finally {
       setIsLoggingOut(false);
       setIsOpen(false);
