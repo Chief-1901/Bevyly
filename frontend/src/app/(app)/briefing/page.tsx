@@ -1,12 +1,16 @@
 import { Suspense } from 'react';
-import { intentApi } from '@/lib/api/server';
+import { intentApi, opportunitiesApi } from '@/lib/api/server';
 import { BriefingContent } from './BriefingContent';
 import { BriefingSkeleton } from './BriefingSkeleton';
 
 async function BriefingData() {
-  const result = await intentApi.getBriefing(10);
+  // Fetch briefing and pipeline data in parallel
+  const [briefingResult, pipelineResult] = await Promise.all([
+    intentApi.getBriefing(10),
+    opportunitiesApi.getPipeline(),
+  ]);
 
-  if (!result.success || !result.data) {
+  if (!briefingResult.success || !briefingResult.data) {
     return (
       <BriefingContent
         recommendations={[]}
@@ -17,6 +21,7 @@ async function BriefingData() {
           mediumPriority: 0,
           lowPriority: 0,
         }}
+        pipelineStages={[]}
         error="Failed to load briefing. Please try again."
       />
     );
@@ -24,9 +29,10 @@ async function BriefingData() {
 
   return (
     <BriefingContent
-      recommendations={result.data.recommendations}
-      signals={result.data.signals}
-      summary={result.data.summary}
+      recommendations={briefingResult.data.recommendations}
+      signals={briefingResult.data.signals}
+      summary={briefingResult.data.summary}
+      pipelineStages={pipelineResult.success && pipelineResult.data ? pipelineResult.data : []}
     />
   );
 }

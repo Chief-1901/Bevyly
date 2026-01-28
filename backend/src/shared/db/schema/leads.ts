@@ -63,7 +63,14 @@ export const leads = pgTable('leads', {
   
   // Custom fields
   customFields: jsonb('custom_fields').$type<Record<string, unknown>>().default({}),
-  
+
+  // Discovery & Enrichment fields
+  discoveryRunId: varchar('discovery_run_id', { length: 36 }), // References agent_runs.id
+  enrichmentStatus: varchar('enrichment_status', { length: 20 }).default('pending'),
+  // Statuses: 'pending', 'approved', 'enriching', 'enriched', 'skipped', 'failed'
+  enrichedAt: timestamp('enriched_at', { withTimezone: true }),
+  enrichmentData: jsonb('enrichment_data').$type<Record<string, unknown>>().default({}),
+
   // Timestamps
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
@@ -77,6 +84,8 @@ export const leads = pgTable('leads', {
   index('leads_fit_score_idx').on(table.fitScore),
   index('leads_customer_status_idx').on(table.customerId, table.status),
   index('leads_domain_idx').on(table.domain),
+  index('leads_discovery_run_idx').on(table.discoveryRunId),
+  index('leads_enrichment_status_idx').on(table.enrichmentStatus),
 ]);
 
 // Relations
@@ -102,6 +111,10 @@ export type NewLead = typeof leads.$inferInsert;
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'unqualified', 'converted', 'rejected'] as const;
 export type LeadStatus = typeof LEAD_STATUSES[number];
 
-// Lead source enum for validation  
-export const LEAD_SOURCES = ['manual', 'import', 'generation', 'referral', 'website', 'linkedin', 'event'] as const;
+// Lead source enum for validation
+export const LEAD_SOURCES = ['manual', 'import', 'generation', 'referral', 'website', 'linkedin', 'event', 'discovery'] as const;
 export type LeadSource = typeof LEAD_SOURCES[number];
+
+// Lead enrichment status enum
+export const LEAD_ENRICHMENT_STATUSES = ['pending', 'approved', 'enriching', 'enriched', 'skipped', 'failed'] as const;
+export type LeadEnrichmentStatus = typeof LEAD_ENRICHMENT_STATUSES[number];

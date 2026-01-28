@@ -14,7 +14,7 @@ const cardSelectionSchema = z.object({
   cards: z.array(
     z.object({
       cardType: z.enum(ALLOWED_CARD_TYPES as [string, ...string[]]),
-      props: z.record(z.any()),
+      props: z.record(z.string(), z.any()),
       reasoning: z.string().describe('Brief explanation of why this card was selected'),
     })
   ),

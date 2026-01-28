@@ -13,6 +13,12 @@ import type {
   SignalId,
   PatternId,
   RecommendationId,
+  AgentConfigId,
+  AgentRunId,
+  ApprovalQueueItemId,
+  IntegrationCredentialId,
+  CreditUsageId,
+  UserSettingsId,
 } from '../types/index.js';
 
 /**
@@ -41,6 +47,15 @@ export const generateSignalId = (): SignalId => generateId('sig') as SignalId;
 export const generatePatternId = (): PatternId => generateId('pat') as PatternId;
 export const generateRecommendationId = (): RecommendationId => generateId('rec') as RecommendationId;
 export const generateFeedbackId = (): string => generateId('rfb');
+
+// Agent Infrastructure ID generators
+export const generateAgentConfigId = (): AgentConfigId => generateId('agcfg') as AgentConfigId;
+export const generateAgentRunId = (): AgentRunId => generateId('run') as AgentRunId;
+export const generateApprovalItemId = (): ApprovalQueueItemId => generateId('apq') as ApprovalQueueItemId;
+export const generateIntegrationCredentialId = (): IntegrationCredentialId => generateId('icred') as IntegrationCredentialId;
+export const generateCreditUsageId = (): CreditUsageId => generateId('cru') as CreditUsageId;
+export const generateUserSettingsId = (): UserSettingsId => generateId('uset') as UserSettingsId;
+export const generateBatchId = (): string => generateId('batch');
 
 /**
  * Generate a request ID for tracing

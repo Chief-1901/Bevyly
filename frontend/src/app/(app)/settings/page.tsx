@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
 export default function SettingsPage() {
-  redirect('/settings/api-keys');
+  redirect('/settings/profile');
 }
 

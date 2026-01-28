@@ -1,7 +1,7 @@
 {
-  "name": "salesos-backend",
+  "name": "bevyly-backend",
   "version": "0.1.0",
-  "description": "SalesOS Backend - Modular Monolith",
+  "description": "Bevyly Backend - Modular Monolith",
   "private": true,
   "type": "module",
   "scripts": {
